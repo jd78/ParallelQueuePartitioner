@@ -9,8 +9,10 @@
   "author": "Gennaro Del Sorbo",
   "license": "ISC",
   "dependencies": {
+    "mocha": "^2.2.5",
     "moment": "^2.10.3",
     "rwlock": "^5.0.0",
+    "should": "^7.0.1",
     "underscore": "^1.8.3"
   }
 }

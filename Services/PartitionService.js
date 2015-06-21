@@ -1,6 +1,6 @@
 var _ = require("underscore");
 var moment = require("moment");
-var Lock = require("../infrastructure/ExecuteLocked");
+var Lock = require("../Infrastructure/ExecuteLocked");
 var lock = new Lock();
 
 var partitions = [];
@@ -34,4 +34,4 @@ PartitionService.prototype.push = function(partitionId, worker) {
     lock.execWrite(function(){ partitions.push(new Partition(partitionId, worker)); });
 };
 
-module.exports = Partition;
+module.exports = new PartitionService();
