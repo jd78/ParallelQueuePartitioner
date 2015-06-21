@@ -2,6 +2,7 @@ var cluster = require('cluster');
 var jobService = require("./Services/JobService");
 var partitionService = require("./Services/PartitionService");
 var q = require("q");
+var jobs = require("./Application/Jobs");
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -16,9 +17,8 @@ function Worker(worker){
     });
 }
 
-function Jobs(){}
-
-if(cluster.isWorker){
+if(cluster.isWorker) {
+    console.log("worker %d registered", process.pid);
     process.on('message', function(job) { 
         console.log("job " + job.id + " received");
         executeJob(job).then(function(){});
@@ -35,10 +35,6 @@ function Partitioner(configuration){
         workers.push(new Worker(cluster.fork()));
     }
 }
-
-Partitioner.prototype.registerJob = function(type, job){
-    Jobs.prototype[type] = job;
-};
 
 Partitioner.prototype.enqueueJob = function(job, callback){
     if(job === null
@@ -68,9 +64,8 @@ Partitioner.prototype.enqueueJob = function(job, callback){
 };
 
 function executeJob(job){
-    console.log(this);
     return q.Promise(function(resolve, reject){
-        this.parent[job.type]().then(function(){
+        jobs[job.type](job).then(function(){
             process.send(job.id);
             resolve();
         }).catch(function(err){
