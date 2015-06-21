@@ -1,0 +1,16 @@
+{
+  "name": "ParallelQueuePartitioner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Job.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gennaro Del Sorbo",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.10.3",
+    "rwlock": "^5.0.0",
+    "underscore": "^1.8.3"
+  }
+}
