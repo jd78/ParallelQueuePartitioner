@@ -1,5 +1,7 @@
 var _ = require("underscore");
 var moment = require("moment");
+var q = require("q");
+
 var Lock = require("../Infrastructure/ExecuteLocked");
 var lock = new Lock();
 
@@ -20,18 +22,31 @@ function Partition(partitionId, worker) {
 function PartitionService(){}
 
 PartitionService.prototype.get = function(partitionId) {
-    var maybePartition = _.findWhere(partitions, {partitionId: partitionId});
-    
-    if(maybePartition == undefined)
-        return null;
-    
-    maybePartition.updatedAt = moment().utc();
-    
-    return maybePartition;
+    return q.Promise(function(resolve, reject){
+        try {
+        var maybePartition = _.findWhere(partitions, {partitionId: partitionId});
+        
+        if(maybePartition == undefined)
+            return resolve(null);
+        
+        maybePartition.updatedAt = moment().utc();
+        
+        resolve(maybePartition);
+            
+        } catch(ex){
+            reject(ex);
+        }
+    });
 };
 
 PartitionService.prototype.push = function(partitionId, worker) {
-    lock.execWrite(function(){ partitions.push(new Partition(partitionId, worker)); });
+    return lock.execWrite(function() {
+        return q.Promise(function(resolve){
+            var partition = new Partition(partitionId, worker);
+            partitions.push(partition);
+            resolve(partition);
+        });
+    });
 };
 
 module.exports = new PartitionService();
