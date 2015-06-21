@@ -7,28 +7,28 @@ function ExecuteLocked(){
 }
 
 ExecuteLocked.prototype.execRead = function(func){
-    return q.Promise(function(resolve, reject){
-        this.lock.readLock(function(release){
-           func().then(function(obj){
-                release();
-                resolve(obj);
-           }).catch(function(err){
-               reject(err);
-           });
-        });    
+    var deferred = q.defer();
+    this.lock.readLock(function(release){
+       func().then(function(obj){
+            release();
+            deferred.resolve(obj);
+       }).catch(function(err){
+           deferred.reject(err);
+       });
     });
+    return deferred.promise;
 };
 
 ExecuteLocked.prototype.execWrite = function(func){
     var deferred = q.defer();
-        this.lock.writeLock(function(release){
-           func().then(function(obj){
-                release();
-                deferred.resolve(obj);
-           }).catch(function(err){
-               deferred.reject(err);
-           });
-        });    
+    this.lock.writeLock(function(release){
+       func().then(function(obj){
+            release();
+            deferred.resolve(obj);
+       }).catch(function(err){
+           deferred.reject(err);
+       });
+    });    
     return deferred.promise;
 };
 

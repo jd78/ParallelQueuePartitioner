@@ -22,20 +22,22 @@ function Partition(partitionId, worker) {
 function PartitionService(){}
 
 PartitionService.prototype.get = function(partitionId) {
-    return q.Promise(function(resolve, reject){
-        try {
-        var maybePartition = _.findWhere(partitions, {partitionId: partitionId});
-        
-        if(maybePartition == undefined)
-            return resolve(null);
-        
-        maybePartition.updatedAt = moment().utc();
-        
-        resolve(maybePartition);
-            
-        } catch(ex){
-            reject(ex);
-        }
+    return lock.execRead(function(){
+       return q.Promise(function(resolve, reject){
+            try {
+                var maybePartition = _.findWhere(partitions, {partitionId: partitionId});
+                
+                if(maybePartition == undefined)
+                    return resolve(null);
+                
+                maybePartition.updatedAt = moment().utc();
+                
+                resolve(maybePartition);
+                
+            } catch(ex){
+                reject(ex);
+            }
+        }); 
     });
 };
 

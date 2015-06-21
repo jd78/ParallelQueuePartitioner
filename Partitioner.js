@@ -3,6 +3,8 @@ var jobService = require("./Services/JobService");
 var partitionService = require("./Services/PartitionService");
 var q = require("q");
 var jobs = require("./Application/Jobs");
+var Lock = require("./Infrastructure/ExecuteLocked");
+var lock = new Lock();
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -47,16 +49,17 @@ Partitioner.prototype.enqueueJob = function(job, callback){
         || job.type === undefined)
         throw new Error("Job null or invalid, should contain id, partitionId, type, data: {}");
     
-    partitionService.get(job.partitionId)
-    .then(function(partition){
-        if(partition == null) {
-            var index = ++workerPartitionIndex % numberOfWorkers;
-            return partitionService.push(job.partitionId, workers[index].worker);
-        }else{
-            return partition;
-        }
-    })
-    .then(function(partition){
+    lock.execWrite(function(){
+        return partitionService.get(job.partitionId)
+            .then(function(partition){
+                if(partition == null) {
+                    var index = ++workerPartitionIndex % numberOfWorkers;
+                    return partitionService.push(job.partitionId, workers[index].worker);
+                }else{
+                    return partition;
+                }
+            });
+    }).then(function(partition){
         jobService.push(job.id, callback).then(function(){
             partition.worker.send(job);   
         });      

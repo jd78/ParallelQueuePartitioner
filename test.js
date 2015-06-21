@@ -9,7 +9,7 @@ if(cluster.isWorker){
     jobs.sum = function(job){
         var sum = job.data.one + job.data.two;
         console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
-    }
+    };
 }
 
 if(cluster.isMaster)
