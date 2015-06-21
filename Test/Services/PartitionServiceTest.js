@@ -8,16 +8,18 @@ describe("PartitionService tests", function(){
     var worker = { workerId: 1 }
    
    it("push", function(){
-       partitionService.push(partitionId, worker);
+       return partitionService.push(partitionId, worker);
    });
    
    it("get", function(){
-       var partition = partitionService.get(partitionId);
-       should(partition).not.be.null;
+       partitionService.get(partitionId).then(function(partition){
+        should(partition).not.be.null;    
+       });
    });
    
    it("get - null", function(){
-       var partition = partitionService.get(2);
-       should(partition).be.null;
+       partitionService.get(2).then(function(partition){
+           should(partition).be.null;
+       });
    });
 });
