@@ -1,10 +1,10 @@
 var cluster = require('cluster');
-var jobService = require("../Services/JobService");
-var PartitionService = require("../Services/PartitionService");
-var jobs = require("./Jobs");
-var Lock = require("../Infrastructure/ExecuteLocked");
+var jobService = require("./Services/JobService");
+var PartitionService = require("./Services/PartitionService");
+var jobs = require("./Application/Jobs");
+var Lock = require("./Application/ExecuteLocked");
 var lock = new Lock();
-var Worker = require("../Infrastructure/Worker");
+var Worker = require("./Application/Worker");
 
 var workers = [];
 var workerPartitionIndex = 0;

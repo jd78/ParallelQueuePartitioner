@@ -1,6 +1,6 @@
 var jobService = require("../Services/JobService");
 var cluster = require("cluster");
-var jobs = require("../Application/Jobs");
+var jobs = require("./Jobs");
 var q = require("q");
 var util = require("util");
 var Message = require("./Message");

@@ -2,8 +2,7 @@ var _ = require("underscore");
 var moment = require("moment");
 var q = require("q");
 
-
-var Lock = require("../Infrastructure/ExecuteLocked");
+var Lock = require("../Application/ExecuteLocked");
 var lock = new Lock();
 
 var partitions = [];
