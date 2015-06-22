@@ -1,4 +1,5 @@
-var partitionService = require("../../Services/PartitionService");
+var PartitionService = require("../../Services/PartitionService");
+var partitionService = new PartitionService(10);
 var should = require("should");
 
 describe("PartitionService tests", function(){

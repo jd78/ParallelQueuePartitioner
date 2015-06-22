@@ -1,6 +1,6 @@
 var cluster = require('cluster');
 var jobService = require("./Services/JobService");
-var partitionService = require("./Services/PartitionService");
+var PartitionService = require("./Services/PartitionService");
 var q = require("q");
 var jobs = require("./Application/Jobs");
 var Lock = require("./Infrastructure/ExecuteLocked");
@@ -29,6 +29,7 @@ if(cluster.isWorker) {
 
 function Partitioner(configuration){
     numberOfWorkers = configuration.numberOfWorkers || 1;
+    this.partitionService = new PartitionService(configuration.cleanIdlePartitionsAfterMinutes || 15);
     
     if(cluster.isWorker)
         throw new Error("a worker is trying to instantiate a partitioner");
@@ -39,6 +40,7 @@ function Partitioner(configuration){
 }
 
 Partitioner.prototype.enqueueJob = function(job, callback){
+    var self = this;
     if(job === null
         || job === undefined
         || job.id === null
@@ -50,11 +52,11 @@ Partitioner.prototype.enqueueJob = function(job, callback){
         throw new Error("Job null or invalid, should contain id, partitionId, type, data: {}");
     
     lock.execWrite(function(){
-        return partitionService.get(job.partitionId)
+        return self.partitionService.get(job.partitionId)
             .then(function(partition){
                 if(partition == null) {
                     var index = ++workerPartitionIndex % numberOfWorkers;
-                    return partitionService.push(job.partitionId, workers[index].worker);
+                    return self.partitionService.push(job.partitionId, workers[index].worker);
                 }else{
                     return partition;
                 }

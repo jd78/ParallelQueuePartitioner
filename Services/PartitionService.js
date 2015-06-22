@@ -1,13 +1,13 @@
 var _ = require("underscore");
 var moment = require("moment");
 var q = require("q");
-var configuration = require("../Application/Configuration");
 
 
 var Lock = require("../Infrastructure/ExecuteLocked");
 var lock = new Lock();
 
 var partitions = [];
+var cleanIdlePartitionsAfterMinutes;
 
 function Partition(partitionId, worker) {
     var self = this;
@@ -16,20 +16,22 @@ function Partition(partitionId, worker) {
     this.updatedAt = moment().utc().format();
     
     setInterval(function() {
-        console.log(self.updatedAt)
-        console.log(moment().utc().subtract(configuration.partitionTimeOut, 'minutes').format())
-        console.log(partitions.length)
-        if(self.updatedAt < moment().utc().subtract(configuration.partitionTimeOut, 'minutes').format())
+        if(self.updatedAt < moment().utc().subtract(cleanIdlePartitionsAfterMinutes, 'minutes').format())
             lock.execWrite(function(){ 
                 return q.Promise(function(resolve){
-                   partitions.splice(_.findIndex(partitions, self), 1); 
-                   resolve();
+                  partitions.splice(_.findIndex(partitions, self), 1); 
+                  resolve();
                 });
             });
-    }, configuration.partitionTimeoutCheckerInternal);
+    }, cleanIdlePartitionsAfterMinutes * 60 * 60);
 }
 
-function PartitionService(){}
+function PartitionService(cleanIdlePartitions){
+    if(cleanIdlePartitions === null || cleanIdlePartitions === undefined || isNaN(parseInt(cleanIdlePartitions)) || cleanIdlePartitions <= 0)
+        throw new Error("cleanIdlePartitionsAfterMinutes required integer greater than 0");
+    
+    cleanIdlePartitionsAfterMinutes = cleanIdlePartitions;
+}
 
 PartitionService.prototype.get = function(partitionId) {
     return lock.execRead(function(){
@@ -61,4 +63,4 @@ PartitionService.prototype.push = function(partitionId, worker) {
     });
 };
 
-module.exports = new PartitionService();
+module.exports = PartitionService;
