@@ -1,7 +1,8 @@
 {
-  "name": "ParallelQueuePartitioner",
+  "name": "parallel-queue-partitioner",
   "version": "1.0.0",
   "description": "Round-Robin parallel task dispatcher that executes the tasks in sequence once related (same partitionId)",
+  "homepage": "https://github.com/jd78/ParallelQueuePartitioner",
   "main": "Partitioner.js",
   "files": [
     "LICENSE",
@@ -16,7 +17,7 @@
   "scripts": {
     "test": "make"
   },
-  "author": "Gennaro Del Sorbo",
+  "author": "Gennaro Del Sorbo <gennaro.delsorbo@gmail.com>",
   "keywords": [
     "parallel",
     "partitioner",
@@ -33,6 +34,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/jd78/ParallelQueuePartitioner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jd78/ParallelQueuePartitioner/issues"
   },
   "dependencies": {
     "mocha": "^2.2.5",
