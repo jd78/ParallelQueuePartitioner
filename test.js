@@ -3,8 +3,8 @@ var cluster = require("cluster");
 var jobs = require("./Partitioner").Jobs;
 var q = require("q");
 
-if(cluster.isWorker){
-    jobs.test = function(){
+if(cluster.isWorker) {
+    jobs.test = function() {
         return q.Promise(function(resolve){
             console.log("the job has been executed by " + process.pid);
             resolve();
@@ -49,6 +49,7 @@ function Start(){
                 }, function(err){
                     if(err !== undefined)
                         console.log(err);
+                        
                 });
             }else{
                 partitioner.enqueueJob({
