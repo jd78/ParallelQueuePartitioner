@@ -1,21 +1,31 @@
 var Partitioner = require("./Partitioner").Partitioner;
 var cluster = require("cluster");
 var jobs = require("./Partitioner").Jobs;
+var q = require("q");
 
 if(cluster.isWorker){
     jobs.test = function(){
-       console.log("the job has been executed by " + process.pid); 
+        return q.Promise(function(resolve){
+            console.log("the job has been executed by " + process.pid);
+            resolve();
+        });
     };
     jobs.sum = function(job){
-        var sum = job.data.one + job.data.two;
-        console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
+        return q.Promise(function(resolve){
+            var sum = job.data.one + job.data.two;
+            console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
+            resolve();
+        });
     };
     jobs.slow = function(job){
-        console.log("slow job started. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
-        for(var i=0; i<999999999; i++){
+        return q.Promise(function(resolve) {
+            console.log("slow job started. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
+            for(var i=0; i<999999999; i++){
             
-        }
-        console.log("slow job completed. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
+            }
+            console.log("slow job completed. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
+            resolve();
+        });
     };
 }
 
@@ -34,8 +44,11 @@ function Start(){
                 partitioner.enqueueJob({
                     id: i,
                     partitionId: i%3,
-                    type: "test",
+                    type: "testt",
                     data: { }
+                }, function(err){
+                    if(err !== undefined)
+                        console.log(err);
                 });
             }else{
                 partitioner.enqueueJob({
@@ -56,6 +69,8 @@ function Start(){
                     one: i,
                     two: i+1
                 }
+            }, function(){
+                console.log("CALLBACK CALLED");
             });
         }
         
