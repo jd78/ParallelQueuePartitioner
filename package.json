@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Round-Robin parallel task dispatcher that executes the tasks in sequence once related (same partitionId)",
   "homepage": "https://github.com/jd78/ParallelQueuePartitioner",
-  "main": "Partitioner.js",
+  "main": "./Partitioner.js",
   "files": [
     "LICENSE",
     "Application",
