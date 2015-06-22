@@ -5,6 +5,7 @@ var jobs = require("./Application/Jobs");
 var Lock = require("./Application/ExecuteLocked");
 var lock = new Lock();
 var Worker = require("./Application/Worker");
+var logger = require("./Application/Logger");
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -13,6 +14,9 @@ var numberOfWorkers;
 function Partitioner(configuration){
     numberOfWorkers = configuration.numberOfWorkers || 1;
     this.partitionService = new PartitionService(configuration.cleanIdlePartitionsAfterMinutes || 15);
+    if(configuration.loggerLevel !== undefined){
+        logger.transports.file.level = configuration.loggerLevel;
+    }
     
     if(cluster.isWorker)
         throw new Error("a worker is trying to instantiate a partitioner");
