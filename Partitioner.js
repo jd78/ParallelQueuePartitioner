@@ -79,4 +79,7 @@ function executeJob(job){
     });
 }
 
-module.exports = Partitioner;
+module.exports = {
+    Partitioner: Partitioner,
+    Jobs: jobs
+};
