@@ -1,6 +1,8 @@
 var _ = require("underscore");
 var moment = require("moment");
 var q = require("q");
+var configuration = require("../Application/Configuration");
+
 
 var Lock = require("../Infrastructure/ExecuteLocked");
 var lock = new Lock();
@@ -11,12 +13,20 @@ function Partition(partitionId, worker) {
     var self = this;
     this.partitionId = partitionId;
     this.worker = worker;
-    this.updatedAt = moment().utc();
+    this.updatedAt = moment().utc().format();
     
     setInterval(function() {
-        if(self.updatedAt < moment().utc().subtract(15, 'minutes'))
-        lock.execWrite(function(){ partitions.splice(_.findIndex(partitions, self), 1); });
-    }, 20000);
+        console.log(self.updatedAt)
+        console.log(moment().utc().subtract(configuration.partitionTimeOut, 'minutes').format())
+        console.log(partitions.length)
+        if(self.updatedAt < moment().utc().subtract(configuration.partitionTimeOut, 'minutes').format())
+            lock.execWrite(function(){ 
+                return q.Promise(function(resolve){
+                   partitions.splice(_.findIndex(partitions, self), 1); 
+                   resolve();
+                });
+            });
+    }, configuration.partitionTimeoutCheckerInternal);
 }
 
 function PartitionService(){}
@@ -30,7 +40,7 @@ PartitionService.prototype.get = function(partitionId) {
                 if(maybePartition == undefined)
                     return resolve(null);
                 
-                maybePartition.updatedAt = moment().utc();
+                maybePartition.updatedAt = moment().utc().format();
                 
                 resolve(maybePartition);
                 
