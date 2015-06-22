@@ -12,7 +12,7 @@
     "Partitioner.js",
     "README.md",
     "test.js"
-  ]
+  ],
   "scripts": {
     "test": "make"
   },
