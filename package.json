@@ -4,7 +4,7 @@
   "description": "Round-Robin parallel task dispatcher that executes the tasks in sequence if related (same partitionId)",
   "homepage": "https://github.com/jd78/ParallelQueuePartitioner",
   "author": "Gennaro Del Sorbo <gennaro.delsorbo@gmail.com>",
-  "main": "index",
+  "main": "./Application/Partitioner.js",
   "scripts": {
     "test": "make"
   },
@@ -28,13 +28,15 @@
   "bugs": {
     "url": "https://github.com/jd78/ParallelQueuePartitioner/issues"
   },
-  "dependencies": {
+  "devDependencies": {
     "mocha": "^2.2.5",
+    "should": "^7.0.1",
+    "sinon": "^1.15.3"
+  },
+  "dependencies": {
     "moment": "^2.10.3",
     "q": "^1.4.1",
     "rwlock": "^5.0.0",
-    "should": "^7.0.1",
-    "sinon": "^1.15.3",
     "underscore": "^1.8.3"
   }
 }
