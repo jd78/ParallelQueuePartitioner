@@ -11,25 +11,32 @@ describe("Jobs Test", function(){
     sinon.stub(logger, "warn");
     sinon.stub(logger, "info");
     sinon.stub(logger, "debug");
-
+    
+    process.send = function(){};
+    var processSpy = sinon.spy(process, "send");
+    
+    
+    afterEach(function(){
+        processSpy.reset();
+    });
+    
     var job = {
         id: 1,
         partitionId: 1,
         type: 'test'
     };
     
-    it("unregistered job", function() {
-        var catchCalled = false;
-        jobs.executeJob(job).then(function(){}).catch(function(){
-            catchCalled = true;
+    it("unregistered job", function(done) {
+        jobs.executeJob(job).then(function(){
+            throw new Error("Exception not thrown");
+        }).catch(function(){
+            processSpy.calledOnce.should.be.exactly(true);
+            done();
         });
-        
-        catchCalled.should.be.true;
     });
     
-    it("execute job", function() {
+    it("execute job", function(done) {
         var execCalled = false;
-        var catchCalled = false;
         
         jobs['test'] = function(job){
             return q.Promise(function(resolve){
@@ -38,11 +45,31 @@ describe("Jobs Test", function(){
             });
         };
         
-        jobs.executeJob(job).then(function(){}).catch(function(){
-            catchCalled = true;
+        jobs.executeJob(job).then(function(){
+            execCalled.should.be.exactly(true);
+            processSpy.calledOnce.should.be.exactly(true);
+            done();
+        }).catch(function(){
+            throw new Error("Exception not supposed to be trown");
         });
+    });
+    
+    it("execute job throws exception", function(done) {
+        var execCalled = false;
         
-        catchCalled.should.be.false;
-        execCalled.should.be.true;
+        jobs['test'] = function(job){
+            return q.Promise(function(resolve){
+                execCalled = true;
+                throw new Error("exception");
+            });
+        };
+        
+        jobs.executeJob(job).then(function(){
+            
+        }).catch(function(){
+            execCalled.should.be.exactly(true);
+            processSpy.calledOnce.should.be.exactly(true);
+            done();
+        });
     });
 });
