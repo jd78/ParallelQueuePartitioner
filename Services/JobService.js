@@ -1,5 +1,7 @@
 var _ = require("underscore");
 var q = require("q");
+var logger = require("../Application/Logger");
+
 
 var jobs = [];
 
@@ -14,7 +16,7 @@ function Job(id, callback) {
     
     this.error = function(err){
         if(callback !== undefined)
-            callback(err);
+            callback(err, this.id);
         jobs.splice(_.findIndex(jobs, this), 1);
     };
 }
@@ -27,6 +29,7 @@ JobService.prototype.push = function(id, callback) {
             jobs.push(new Job(id, callback));
             resolve();
         }catch(ex){
+            logger.error(ex);
             reject(ex);
         }
     });

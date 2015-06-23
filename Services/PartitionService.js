@@ -1,6 +1,7 @@
 var _ = require("underscore");
 var moment = require("moment");
 var q = require("q");
+var logger = require("../Application/Logger");
 
 var Lock = require("../Application/ExecuteLocked");
 var lock = new Lock();
@@ -46,6 +47,7 @@ PartitionService.prototype.get = function(partitionId) {
                 resolve(maybePartition);
                 
             } catch(ex){
+                logger.error(ex);
                 reject(ex);
             }
         }); 
