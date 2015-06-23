@@ -1,23 +1,23 @@
 var Partitioner = require("./Partitioner").Partitioner;
 var cluster = require("cluster");
-var jobs = require("./Partitioner").Jobs;
+var registerJob = require("./Partitioner").registerJob;
 var q = require("q");
 
 if(cluster.isWorker) {
-    jobs.test = function() {
+    registerJob('test', function(job){
         return q.Promise(function(resolve){
             console.log("the job has been executed by " + process.pid);
             resolve();
         });
-    };
-    jobs.sum = function(job){
+    });
+    registerJob('sum', function(job){
         return q.Promise(function(resolve){
             var sum = job.data.one + job.data.two;
             console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
             resolve();
         });
-    };
-    jobs.slow = function(job){
+    });
+    registerJob('slow', function(job){
         return q.Promise(function(resolve) {
             console.log("slow job started. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
             for(var i=0; i<999999999; i++){
@@ -26,7 +26,7 @@ if(cluster.isWorker) {
             console.log("slow job completed. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
             resolve();
         });
-    };
+    });
 }
 
 if(cluster.isMaster)

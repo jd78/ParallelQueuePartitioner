@@ -60,5 +60,7 @@ Partitioner.prototype.enqueueJob = function(job, callback){
 
 module.exports = {
     Partitioner: Partitioner,
-    Jobs: jobs
+    registerJob: function(title, func) {
+        jobs[title] = func;
+    }
 };
