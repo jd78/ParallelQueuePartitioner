@@ -7,7 +7,7 @@ var logger = new (winston.Logger)({
           filename: 'partitioner.log',
           handleExceptions: true,
           exitOnError: false,
-          level: 'debug' //info, warning, error
+          level: 'error' //info, warning, error
       })
     ]
 });

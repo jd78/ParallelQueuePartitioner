@@ -6,6 +6,8 @@ var Lock = require("./Application/ExecuteLocked");
 var lock = new Lock();
 var Worker = require("./Application/Worker");
 var logger = require("./Application/Logger");
+var util = require("util");
+
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -50,6 +52,7 @@ Partitioner.prototype.enqueueJob = function(job, callback){
             });
     }).then(function(partition){
         jobService.push(job.id, callback).then(function(){
+            logger.debug(util.format("job %d, partitionId %d, type %s, pushed", job.id, job.partitionId, job.type))
             partition.worker.send(job);   
         });      
     });
