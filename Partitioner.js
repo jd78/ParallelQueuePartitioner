@@ -52,7 +52,7 @@ Partitioner.prototype.enqueueJob = function(job, callback){
             });
     }).then(function(partition){
         jobService.push(job.id, callback).then(function(){
-            logger.debug(util.format("job %d, partitionId %d, type %s, pushed", job.id, job.partitionId, job.type))
+            logger.debug(util.format("job %d, partitionId %d, type %s, pushed", job.id, job.partitionId, job.type));
             partition.worker.send(job);   
         });      
     });
