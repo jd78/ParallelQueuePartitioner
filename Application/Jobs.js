@@ -3,7 +3,6 @@ var Message = require("../Entities/Message");
 var util = require("util");
 var q = require("q");
 
-
 function Jobs(){}
 
 Jobs.prototype.executeJob = function(job) {

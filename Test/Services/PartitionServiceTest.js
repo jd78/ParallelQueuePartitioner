@@ -13,13 +13,49 @@ describe("PartitionService tests", function(){
    
     it("get", function(){
         return partitionService.get(partitionId).then(function(partition){
-            (partition!==null).should.be.true;    
+            (partition!==null).should.be.exactly(true);    
         });
     });
    
     it("get - null", function(){
         return partitionService.get(2).then(function(partition){
-            (partition === null).should.be.true;
+            (partition === null).should.be.exactly(true);
         });
+   });
+   
+   it("New PartitionService with missing parameter", function(){
+      var exceptionThrown = false;
+      
+      try {
+          new PartitionService();
+      } catch(err){
+          exceptionThrown = true;
+      }
+      
+      exceptionThrown.should.be.exactly(true);
+   });
+   
+   it("New PartitionService with wrong parameter", function(){
+      var exceptionThrown = false;
+      
+      try {
+          new PartitionService('a');
+      } catch(err){
+          exceptionThrown = true;
+      }
+      
+      exceptionThrown.should.be.exactly(true);
+   });
+   
+   it("New PartitionService with wrong parameter", function(){
+      var exceptionThrown = false;
+      
+      try {
+          new PartitionService(0);
+      } catch(err){
+          exceptionThrown = true;
+      }
+      
+      exceptionThrown.should.be.exactly(true);
    });
 });
