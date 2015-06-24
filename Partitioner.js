@@ -72,6 +72,15 @@ Partitioner.prototype.enqueueJob = function(job, callback){
 function validate(configuration){
     if(configuration.numberOfWorkers !== undefined && !validator.isInt(configuration.numberOfWorkers, {min:1} ))
         throw new Error("numberOfWorkers should be an integer >= 1");
+    if(configuration.cleanIdlePartitionsAfterMinutes !== undefined && !validator.isInt(configuration.cleanIdlePartitionsAfterMinutes, {min:1} ))
+        throw new Error("cleanIdlePartitionsAfterMinutes should be an integer >= 1");
+    if(configuration.loggerLevel !== undefined && !(
+        validator.equals(configuration.loggerLevel, 'debug') 
+        || validator.equals(configuration.loggerLevel, 'info')
+        || validator.equals(configuration.loggerLevel, 'warn')
+        || validator.equals(configuration.loggerLevel, 'error'))
+    )
+        throw new Error("loggerLevel should be debug, info, warn or error");
         
 }
 
