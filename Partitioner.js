@@ -8,16 +8,22 @@ var Worker = require("./Application/Worker");
 var logger = require("./Application/Logger");
 var util = require("util");
 
-
 var workers = [];
 var workerPartitionIndex = 0;
 var numberOfWorkers;
 
+var defaultConfiguration = {
+  numberOfWorkers: 1,
+  cleanIdlePartitionsAfterMinutes: 15,
+  loggerLevel: "error"
+};
+
 function Partitioner(configuration){
-    numberOfWorkers = configuration.numberOfWorkers || 1;
-    this.partitionService = new PartitionService(configuration.cleanIdlePartitionsAfterMinutes || 15);
-    if(configuration.loggerLevel !== undefined){
-        logger.transports.file.level = configuration.loggerLevel;
+    var config = configuration !== undefined ? configuration : defaultConfiguration;
+    numberOfWorkers = config.numberOfWorkers || 1;
+    this.partitionService = new PartitionService(config.cleanIdlePartitionsAfterMinutes || 15);
+    if(config.loggerLevel !== undefined){
+        logger.transports.file.level = config.loggerLevel;
     }
     
     if(cluster.isWorker)

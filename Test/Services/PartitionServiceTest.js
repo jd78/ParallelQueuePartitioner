@@ -23,7 +23,7 @@ describe("PartitionService tests", function(){
         });
    });
    
-   it("New PartitionService with missing parameter", function(){
+   it("required partitionService parameters", function(){
       var exceptionThrown = false;
       
       try {
@@ -35,7 +35,7 @@ describe("PartitionService tests", function(){
       exceptionThrown.should.be.exactly(true);
    });
    
-   it("New PartitionService with wrong parameter", function(){
+   it("PartitionService parameters must be an integer", function(){
       var exceptionThrown = false;
       
       try {
@@ -47,7 +47,7 @@ describe("PartitionService tests", function(){
       exceptionThrown.should.be.exactly(true);
    });
    
-   it("New PartitionService with wrong parameter", function(){
+   it("PartitionService parameter mist be greater than 0", function(){
       var exceptionThrown = false;
       
       try {

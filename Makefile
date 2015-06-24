@@ -5,6 +5,7 @@ unit-test:
 	@echo "Running middleware tests..."
 	mocha $(SERVICETESTS)
 	mocha $(APPLICATIONTESTS)
+	mocha ./Test/partitionerTest.js
 	
 all: unit-test
 unit-tests: unit-test
