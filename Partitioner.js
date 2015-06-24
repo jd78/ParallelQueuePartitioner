@@ -7,6 +7,8 @@ var lock = new Lock();
 var Worker = require("./Application/Worker");
 var logger = require("./Application/Logger");
 var util = require("util");
+var validator = require("validator");
+
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -18,7 +20,10 @@ var defaultConfiguration = {
   loggerLevel: "error"
 };
 
-function Partitioner(configuration){
+function Partitioner(configuration) {
+    if(configuration !== undefined)
+        validate(configuration);
+    
     var config = configuration !== undefined ? configuration : defaultConfiguration;
     numberOfWorkers = config.numberOfWorkers || 1;
     this.partitionService = new PartitionService(config.cleanIdlePartitionsAfterMinutes || 15);
@@ -63,6 +68,12 @@ Partitioner.prototype.enqueueJob = function(job, callback){
         });      
     });
 };
+
+function validate(configuration){
+    if(configuration.numberOfWorkers !== undefined && !validator.isInt(configuration.numberOfWorkers, {min:1} ))
+        throw new Error("numberOfWorkers should be an integer >= 1");
+        
+}
 
 module.exports = {
     Partitioner: Partitioner,
