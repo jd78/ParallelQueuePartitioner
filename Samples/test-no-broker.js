@@ -1,6 +1,6 @@
-var Partitioner = require("./Partitioner").Partitioner;
+var Partitioner = require("../Partitioner").Partitioner;
 var cluster = require("cluster");
-var registerJob = require("./Partitioner").registerJob;
+var registerJob = require("../Partitioner").registerJob;
 var q = require("q");
 
 if(cluster.isWorker) {
