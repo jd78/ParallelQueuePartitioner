@@ -20,6 +20,9 @@
     "pub",
     "sub"
   ],
+  "bin": {
+    "parallel-queue-partitioner": "./bin/parallel-queue-partitioner"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
