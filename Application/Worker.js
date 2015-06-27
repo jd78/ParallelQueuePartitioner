@@ -15,7 +15,7 @@ function Worker(worker){
             return;
         }
         
-        logger.debug("complete notify received for id %d", message.id);
+        logger.debug("master received completed notify for jobId %d", message.id);
         jobService.done(message.id);
     });
 }

@@ -1,4 +1,4 @@
-var parallelQueuePartitioner = require("parallel-queue-partitioner");
+var parallelQueuePartitioner = require("./Partitioner");
 var Partitioner = parallelQueuePartitioner.Partitioner;
 var cluster = require("cluster");
 var q = require("q");
@@ -28,7 +28,8 @@ if(cluster.isMaster)
     
 function Start(){
     var partitioner = new Partitioner({
-        numberOfWorkers: 8
+        numberOfWorkers: 4,
+        loggerLevel: 'error'
     });
     
     setTimeout(function(){
@@ -43,15 +44,5 @@ function Start(){
 			});
         }
 		
-		for(var i=1; i<50; i++) {
-            partitioner.enqueueJob({
-                id: i,
-                partitionId: 10, //Only one process will execute these 50 messages in sequence
-                type: "delayedSum",
-                data: { one: i, two: i*i }
-            }, function(){
-				console.log("sequential job ended");
-			});
-        }
     }, 2000); //Atbitraty deleyer to wait all forks are completed
 }
