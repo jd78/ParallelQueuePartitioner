@@ -27,7 +27,7 @@ function Partition(partitionId, worker) {
                 });
             });
         logger.info(util.format("Partition cleanup completed for %d", partitionId));
-    }, cleanIdlePartitionsAfterMinutes * 60 * 60);
+    }, cleanIdlePartitionsAfterMinutes * 60 * 1000);
 }
 
 function PartitionService(cleanIdlePartitions){
