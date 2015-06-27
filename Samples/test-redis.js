@@ -25,13 +25,10 @@ if(cluster.isWorker) {
     registerJob('sequential', function(job) {
         return q.Promise(function(resolve) {
             console.log("slow in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
-            // for(var i=0; i<999999999; i++){
-            
-            // }
             setTimeout(function(){
                 console.log("slow in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
                 resolve();    
-            }, 300);
+            }, 1000);
         });
     });
 }
@@ -40,7 +37,7 @@ var id=0;
 
 if(cluster.isMaster) {
     console.log('pushing messages');
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 50; i++) {
         queue.create('jobs', {
             partitionId: 0,
             type: "sequential",
@@ -50,14 +47,24 @@ if(cluster.isMaster) {
         });
     }
     
-    // for (var i = 0; i < 20; i++) {
-    //     queue.create('jobs', {
-    //         partitionId: i % 5,
-    //         type: "test"
-    //     }).save(function(err) {
-    //         if (err) console.log(err);
-    //     });
-    // }
+    for (var i = 0; i < 50; i++) {
+        queue.create('jobs', {
+            partitionId: 1,
+            type: "sequential",
+            sequence: i
+        }).save(function(err) {
+            if (err) console.log(err);
+        });
+    }
+    
+    for (var i = 0; i < 150; i++) {
+        queue.create('jobs', {
+            partitionId: i % 5,
+            type: "test"
+        }).save(function(err) {
+            if (err) console.log(err);
+        });
+    }
     
     start();
 }
