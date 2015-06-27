@@ -27,15 +27,21 @@ function Partitioner(configuration) {
     var config = configuration !== undefined ? configuration : defaultConfiguration;
     numberOfWorkers = config.numberOfWorkers || 1;
     this.partitionService = new PartitionService(config.cleanIdlePartitionsAfterMinutes || 15);
+    
+    var processEnv = {};
     if(config.loggerLevel !== undefined){
         logger.transports.file.level = config.loggerLevel;
+        logger.transports.console.level = config.loggerLevel;
+        processEnv["loggerLevel"] = config.loggerLevel;
+    }else {
+        processEnv["loggerLevel"] = defaultConfiguration.loggerLevel;
     }
     
     if(cluster.isWorker)
         throw new Error("a worker is trying to instantiate a partitioner");
     
     for(var i=0; i < numberOfWorkers; i++){
-        workers.push(new Worker(cluster.fork()));
+        workers.push(new Worker(cluster.fork(processEnv)));
     }
 }
 

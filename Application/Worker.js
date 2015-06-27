@@ -12,16 +12,20 @@ function Worker(worker){
             return;
         }
         
-        logger.log("complete notify received for id " + message.id);
+        logger.debug("complete notify received for id %d", message.id);
         jobService.done(message.id);
     });
 }
 
 if(cluster.isWorker) {
+    logger.transports.file.level = process.env["loggerLevel"];
+    logger.transports.console.level = process.env["loggerLevel"];
+    
     logger.info("worker %d registered", process.pid);
     process.on('message', function(job) { 
-        logger.log("job " + job.id + " received");
-        jobs.executeJob(job).then(function(){});
+        logger.debug("job %d received", job.id);
+        jobs.executeJob(job).then(function(){
+        });
     });
 }
 

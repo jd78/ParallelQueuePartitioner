@@ -25,11 +25,13 @@ if(cluster.isWorker) {
     registerJob('sequential', function(job) {
         return q.Promise(function(resolve) {
             console.log("slow in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
-            for(var i=0; i<999999999; i++){
+            // for(var i=0; i<999999999; i++){
             
-            }
-            console.log("slow in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
-            resolve();
+            // }
+            setTimeout(function(){
+                console.log("slow in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
+                resolve();    
+            }, 5000);
         });
     });
 }
@@ -48,21 +50,22 @@ if(cluster.isMaster) {
         });
     }
     
-    for (var i = 0; i < 20; i++) {
-        queue.create('jobs', {
-            partitionId: i % 5,
-            type: "test"
-        }).save(function(err) {
-            if (err) console.log(err);
-        });
-    }
+    // for (var i = 0; i < 20; i++) {
+    //     queue.create('jobs', {
+    //         partitionId: i % 5,
+    //         type: "test"
+    //     }).save(function(err) {
+    //         if (err) console.log(err);
+    //     });
+    // }
     
     start();
 }
     
 function start(){
     var partitioner = new Partitioner({
-        numberOfWorkers: 4
+        numberOfWorkers: 4,
+        loggerLevel: 'debug'
     });
     
     setTimeout(function(){
@@ -77,7 +80,7 @@ function start(){
                     data: { }
                 }, function(err){
                     if(err === undefined){
-                        console.log("test job %d done", id);
+                        console.log("test job %d done", job.id);
                         done();
                     }else{
                         console.log(err);
@@ -95,7 +98,7 @@ function start(){
                     }
                 }, function(err){
                     if(err === undefined){
-                        console.log("sequential job %d done", id);
+                        console.log("sequential job %d done", job.id);
                         done();
                     }else{
                         console.log(err);
