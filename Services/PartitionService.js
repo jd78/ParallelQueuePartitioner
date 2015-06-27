@@ -18,7 +18,7 @@ function Partition(partitionId, worker) {
     
     setInterval(function() {
         logger.info(util.format("Partition cleanup fired for %d", partitionId));
-        if(self.updatedAt < moment().utc().subtract(cleanIdlePartitionsAfterMinutes, 'minutes').format())
+        if(self.updatedAt <= moment().utc().subtract(cleanIdlePartitionsAfterMinutes, 'minutes').format())
             lock.execWrite(function(){ 
                 return q.Promise(function(resolve){
                   partitions.splice(_.findIndex(partitions, self), 1);
