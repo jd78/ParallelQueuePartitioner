@@ -31,7 +31,7 @@ if(cluster.isWorker) {
             setTimeout(function(){
                 console.log("slow in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
                 resolve();    
-            }, 5000);
+            }, 300);
         });
     });
 }
@@ -65,7 +65,7 @@ if(cluster.isMaster) {
 function start(){
     var partitioner = new Partitioner({
         numberOfWorkers: 4,
-        loggerLevel: 'debug'
+        loggerLevel: 'info'
     });
     
     setTimeout(function(){
