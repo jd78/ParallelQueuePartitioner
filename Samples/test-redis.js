@@ -24,9 +24,9 @@ if(cluster.isWorker) {
     
     registerJob('sequential', function(job) {
         return q.Promise(function(resolve) {
-            console.log("slow in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
+            console.log("delayed in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
             setTimeout(function(){
-                console.log("slow in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
+                console.log("delayed in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
                 resolve();    
             }, 1000);
         });

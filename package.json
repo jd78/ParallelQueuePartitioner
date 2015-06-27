@@ -36,7 +36,7 @@
     "should": "^7.0.1",
     "sinon": "^1.15.3",
     "kue": "^0.9.3",
-    "process": "^0.11.1",
+    "process": "^0.11.1"
   },
   "dependencies": {
     "moment": "^2.10.3",
@@ -45,5 +45,14 @@
     "underscore": "^1.8.3",
     "validator": "^3.40.1",
     "winston": "^1.0.0"
-  }
+  },
+  "files": [
+    "Partitioner.js",
+    "Application",
+    "Entities",
+    "Samples",
+    "Services",
+    "LICENSE",
+    "README.md"
+  ]
 }

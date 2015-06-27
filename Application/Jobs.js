@@ -17,7 +17,6 @@ Jobs.prototype.executeJob = function(job) {
         }
         
         self[job.type](job).then(function(){
-            console.log("job exexuted");
             process.send(new Message(job.id));
             resolve();
         }).catch(function(err) {
