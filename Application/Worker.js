@@ -57,15 +57,21 @@ function tryProcessQueue(isInProgress){
         release();
     });
     job().then(function(){
-        if(queue.length > 0)
-            tryProcessQueue(false);
-        else {
-            progressLock.writeLock(function(release){
-                inProgress = false;
-                release();
-            });
-        }
+        tryContinueProcess();
+    }).catch(function(err){
+        tryContinueProcess();
     });
+}
+
+function tryContinueProcess(){
+    if(queue.length > 0)
+        tryProcessQueue(false);
+    else {
+        progressLock.writeLock(function(release){
+            inProgress = false;
+            release();
+        });
+    }
 }
 
 module.exports = Worker;
