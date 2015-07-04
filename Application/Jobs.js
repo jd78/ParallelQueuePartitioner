@@ -1,4 +1,4 @@
-var logger = require("./Logger");
+var Logger = require("./Logger");
 var Message = require("../Entities/Message");
 var util = require("util");
 var q = require("q");
@@ -7,6 +7,7 @@ function Jobs(){}
 
 Jobs.prototype.executeJob = function(job) {
     var self = this;
+    var logger = Logger.instance();
     return q.Promise(function(resolve, reject){
         logger.debug("executing job id: %d, partitionId: %d, type: %s, pid: %d", job.id, job.partitionId, job.type, process.pid);
         if(self[job.type] === undefined) {

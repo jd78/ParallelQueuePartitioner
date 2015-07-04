@@ -1,10 +1,10 @@
 var jobService = require("../Services/JobService");
 var cluster = require("cluster");
 var jobs = require("./Jobs");
-var logger = require("./Logger");
 var ReadWriteLock  = require("rwlock");
 var queueLock = new ReadWriteLock();
 var progressLock = new ReadWriteLock();
+var Logger = require("./Logger");
 
 function Worker(worker){
     this.worker = worker;
@@ -15,7 +15,7 @@ function Worker(worker){
             return;
         }
         
-        logger.debug("master received completed notify for jobId %d", message.id);
+        Logger.instance().debug("master received completed notify for jobId %d", message.id);
         jobService.done(message.id);
     });
 }
@@ -24,13 +24,15 @@ var queue = [];
 var inProgress = false;
 
 if(cluster.isWorker) {
-    logger.transports.file.level = process.env["loggerLevel"];
-    logger.transports.console.level = process.env["loggerLevel"];
+    Logger.new().then(function(log){
+        log.transports.file.level = process.env["loggerLevel"];
+        log.transports.console.level = process.env["loggerLevel"];
+        
+        log.info("worker %d registered", process.pid);
+    });
     
-    logger.info("worker %d registered", process.pid);
-
     process.on('message', function(job) { 
-        logger.debug("job %d received", job.id);
+        Logger.instance().debug("job %d received", job.id);
         queueLock.writeLock(function(release){
             queue.push(function() { return jobs.executeJob(job) });
             release();

@@ -1,6 +1,6 @@
 var _ = require("underscore");
 var q = require("q");
-var logger = require("../Application/Logger");
+var Logger = require("../Application/Logger");
 
 
 var jobs = [];
@@ -29,7 +29,7 @@ JobService.prototype.push = function(id, callback) {
             jobs.push(new Job(id, callback));
             resolve();
         }catch(ex){
-            logger.error(ex);
+            Logger.instance().error(ex);
             reject(ex);
         }
     });

@@ -112,7 +112,8 @@ var partitioner = new Partitioner({
 
 ## Logger
 
-A logger will be created in the folder ./bin/parallel-queue-partitioner/partitioner.log
+A logger will be created in the folder ./bin/parallel-queue-partitioner.
+Each worker will create its own log. 
 
 ## Exemple how to use the partitioner with redis
 

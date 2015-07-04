@@ -5,13 +5,12 @@ var jobs = require("./Application/Jobs");
 var Lock = require("./Application/ExecuteLocked");
 var lock = new Lock();
 var Worker = require("./Application/Worker");
-var logger = require("./Application/Logger");
 var validator = require("validator");
-
 
 var workers = [];
 var workerPartitionIndex = 0;
 var numberOfWorkers;
+var logger;
 
 var defaultConfiguration = {
   numberOfWorkers: 1,
@@ -20,6 +19,9 @@ var defaultConfiguration = {
 };
 
 function Partitioner(configuration) {
+    if(cluster.isWorker)
+        throw new Error("a worker is trying to instantiate a partitioner");
+    
     if(configuration !== undefined)
         validate(configuration);
     
@@ -28,20 +30,22 @@ function Partitioner(configuration) {
     this.partitionService = new PartitionService(config.cleanIdlePartitionsAfterMinutes || 15);
     
     var processEnv = {};
-    if(config.loggerLevel !== undefined){
-        logger.transports.file.level = config.loggerLevel;
-        logger.transports.console.level = config.loggerLevel;
-        processEnv["loggerLevel"] = config.loggerLevel;
-    }else {
-        processEnv["loggerLevel"] = defaultConfiguration.loggerLevel;
-    }
     
-    if(cluster.isWorker)
-        throw new Error("a worker is trying to instantiate a partitioner");
-    
-    for(var i=0; i < numberOfWorkers; i++){
-        workers.push(new Worker(cluster.fork(processEnv)));
-    }
+    var Logger = require("./Application/Logger");
+    Logger.new().then(function(log){
+        logger = log;    
+        if(config.loggerLevel !== undefined){
+            logger.transports.file.level = config.loggerLevel;
+            logger.transports.console.level = config.loggerLevel;
+            processEnv["loggerLevel"] = config.loggerLevel;
+        }else {
+            processEnv["loggerLevel"] = defaultConfiguration.loggerLevel;
+        }
+        
+        for(var i=0; i < numberOfWorkers; i++){
+            workers.push(new Worker(cluster.fork(processEnv)));
+        }
+    });
 }
 
 Partitioner.prototype.enqueueJob = function(job, callback){
