@@ -1,11 +1,10 @@
 var sinon = require("sinon");
-var stubs = require("./Common/stubs");
-stubs.stubLogs();
 var should = require("should");
 var cluster = require("cluster");
 var Partitioner = require("../Partitioner").Partitioner;
 var util = require("util");
 
+process.setMaxListeners(0);
 
 describe("Partitioner", function() {
     
@@ -84,11 +83,10 @@ describe("Partitioner", function() {
         it("if configuration is undefined, then loggerLevel is set to error", function(done){
         
             cluster.isWorker = false;
-            var logger = require("../Application/Logger").instance();
-            
             var partitioner = new Partitioner();
             
             setTimeout(function(){
+                var logger = require("../Application/Logger").instance();
                 logger.transports.file.level.should.be.exactly('error');
                 done();
             }, 100);
@@ -133,16 +131,79 @@ describe("Partitioner", function() {
             it(util.format("if loggerLevel is %s, then loggerLevel is set to %s", test, test), function(done){
         
                 cluster.isWorker = false;
-                var logger = require("../Application/Logger").instance();
                 var partitioner = new Partitioner({
                     loggerLevel: test
                 });
                 
                 setTimeout(function() {
+                    var logger = require("../Application/Logger").instance();
                     logger.transports.file.level.should.be.exactly(test);
                     done();
                 }, 100);
             });    
+        });
+        
+        it("if configuration is undefined then console logging is disabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner();
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.not.exists(logger.transports.console);
+                done();
+            }, 100);
+        });
+        
+        it("if console logging is undefined then console logging is disabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({});
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.not.exists(logger.transports.console);
+                done();
+            }, 100);
+        });
+        
+        it("if console logging is true then console logging is enabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({
+                consoleLogging: true
+            });
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.exists(logger.transports.console);
+                done();
+            }, 100);
+        });
+        
+        it("if consoleLogging is false then console logging is disabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({
+                consoleLogging: false
+            });
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.not.exists(logger.transports.console);
+                done();
+            }, 100);
+        });
+        
+        it("if consoleLogging is not true or false, then throw exception", function(){
+            cluster.isWorker = false;
+            
+            var hasExceptionBeenThrown = false;
+            try{
+                 var partitioner = new Partitioner({
+                     consoleLogging: 'test'
+                 });
+             } catch(ex) {
+                 hasExceptionBeenThrown = true;
+             }
+            
+             hasExceptionBeenThrown.should.be.exactly(true);
         });
     });
 });

@@ -10,7 +10,7 @@ Stubs.prototype.stubLogs = function(){
     var log = {
         transports: {
             file: {
-                level: ''     
+                level: ''
             }
         },
         debug: function(){},
@@ -19,7 +19,7 @@ Stubs.prototype.stubLogs = function(){
         error: function(){}
     };
     
-    sinon.stub(Logger, "new", function(){
+    sinon.stub(Logger, "new", function(consoleEnabled, loggerLevel){
         return q.Promise(function(resolve){
             resolve(log);
         });
@@ -27,12 +27,6 @@ Stubs.prototype.stubLogs = function(){
     sinon.stub(Logger, "instance", function(){
         return log;
     });
-    
-    //var logger = Logger.instance();
-    //sinon.stub(logger, "error");
-    //sinon.stub(logger, "warn");
-    //sinon.stub(logger, "info");
-    //sinon.stub(logger, "debug");
 };
 
 module.exports = new Stubs();

@@ -15,7 +15,8 @@ var logger;
 var defaultConfiguration = {
   numberOfWorkers: 1,
   cleanIdlePartitionsAfterMinutes: 15,
-  loggerLevel: "error"
+  loggerLevel: "error",
+  consoleLogging: false
 };
 
 function Partitioner(configuration) {
@@ -32,22 +33,18 @@ function Partitioner(configuration) {
     var processEnv = {};
     
     var Logger = require("./Application/Logger");
-    Logger.new().then(function(log){
-        logger = log;    
-        if(config.loggerLevel !== undefined){
-            if(logger.transports.file !== undefined)
-                logger.transports.file.level = config.loggerLevel;
-            if(logger.transports.console !== undefined)
-                logger.transports.console.level = config.loggerLevel;
-            processEnv["loggerLevel"] = config.loggerLevel;
-        }else {
-            processEnv["loggerLevel"] = defaultConfiguration.loggerLevel;
-        }
+    Logger.new(
+        config.consoleLogging, 
+        config.loggerLevel || defaultConfiguration.loggerLevel).then(function(log){
+            logger = log;    
+            processEnv["loggerLevel"] = config.loggerLevel || defaultConfiguration.loggerLevel;
+            processEnv["consoleLogging"] = config.consoleLogging || defaultConfiguration.consoleLogging;
         
-        for(var i=0; i < numberOfWorkers; i++){
-            workers.push(new Worker(cluster.fork(processEnv)));
+            for(var i=0; i < numberOfWorkers; i++){
+                workers.push(new Worker(cluster.fork(processEnv)));
+            }
         }
-    });
+    );
 }
 
 Partitioner.prototype.enqueueJob = function(job, callback){
@@ -92,7 +89,11 @@ function validate(configuration){
         || validator.equals(configuration.loggerLevel, 'error'))
     )
         throw new Error("loggerLevel should be debug, info, warn or error");
-        
+    if(configuration.consoleLogging !== undefined && !(
+        validator.equals(configuration.consoleLogging, true) 
+        || validator.equals(configuration.consoleLogging, false))
+    )
+        throw new Error("consoleLogging should be true or false");
 }
 
 module.exports = {

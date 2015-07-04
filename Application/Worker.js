@@ -24,10 +24,7 @@ var queue = [];
 var inProgress = false;
 
 if(cluster.isWorker) {
-    Logger.new().then(function(log){
-        log.transports.file.level = process.env["loggerLevel"];
-        log.transports.console.level = process.env["loggerLevel"];
-        
+    Logger.new(process.env["consoleLogging"], process.env["loggerLevel"]).then(function(log){
         log.info("worker %d registered", process.pid);
     });
     
