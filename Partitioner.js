@@ -35,8 +35,10 @@ function Partitioner(configuration) {
     Logger.new().then(function(log){
         logger = log;    
         if(config.loggerLevel !== undefined){
-            logger.transports.file.level = config.loggerLevel;
-            logger.transports.console.level = config.loggerLevel;
+            if(logger.transports.file !== undefined)
+                logger.transports.file.level = config.loggerLevel;
+            if(logger.transports.console !== undefined)
+                logger.transports.console.level = config.loggerLevel;
             processEnv["loggerLevel"] = config.loggerLevel;
         }else {
             processEnv["loggerLevel"] = defaultConfiguration.loggerLevel;

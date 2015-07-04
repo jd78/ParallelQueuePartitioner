@@ -24,22 +24,29 @@ describe("Partitioner", function() {
     
     describe("Configuration", function(){
         
-        it("if configuration is undefined, then instantiate 1 worker", function(){
+        it("if configuration is undefined, then instantiate 1 worker", function(done){
         
             cluster.isWorker = false;
             
             var partitioner = new Partitioner();
             
-            forkStub.calledOnce.should.be.exactly(true);
+            setTimeout(function(){
+                forkStub.calledOnce.should.be.exactly(true);
+                done();
+            }, 100)
+            
         });
         
-        it("if numberOfWorkers is undefined, then instantiate 1 worker", function(){
+        it("if numberOfWorkers is undefined, then instantiate 1 worker", function(done){
             
             cluster.isWorker = false;
             
             var partitioner = new Partitioner({});
             
-            forkStub.calledOnce.should.be.exactly(true);
+            setTimeout(function(){
+                forkStub.calledOnce.should.be.exactly(true);
+                done();
+            });
         });
         
         it("if numberOfWorkers is 0, then application error", function(){
@@ -59,7 +66,7 @@ describe("Partitioner", function() {
             hasExceptionBeenThrown.should.be.exactly(true);
         });
         
-        it("if numberOfWorkers is 3, then instantiate 3 worker", function(){
+        it("if numberOfWorkers is 3, then instantiate 3 worker", function(done){
         
             cluster.isWorker = false;
             
@@ -67,35 +74,46 @@ describe("Partitioner", function() {
                 numberOfWorkers: 3
             });
             
-            forkStub.calledThrice.should.be.exactly(true);
+            setTimeout(function(){
+                forkStub.calledThrice.should.be.exactly(true);
+                done();
+            }, 100);
+            
         });
         
-        it("if configuration is undefined, then loggerLevel is set to error", function(){
+        it("if configuration is undefined, then loggerLevel is set to error", function(done){
         
             cluster.isWorker = false;
-            var logger = require("../Application/Logger");
+            var logger = require("../Application/Logger").instance();
             
             var partitioner = new Partitioner();
             
-            logger.transports.file.level.should.be.exactly('error');
+            setTimeout(function(){
+                logger.transports.file.level.should.be.exactly('error');
+                done();
+            }, 100);
+            
             
         });
         
-        it("if loggerLevel is undefined, then loggerLevel is set to error", function(){
+        it("if loggerLevel is undefined, then loggerLevel is set to error", function(done){
         
             cluster.isWorker = false;
-            var logger = require("../Application/Logger");
+            var logger = require("../Application/Logger").instance();
             
             var partitioner = new Partitioner({});
             
-            logger.transports.file.level.should.be.exactly('error');
+            setTimeout(function(){
+                logger.transports.file.level.should.be.exactly('error');
+                done();
+            }, 100);
             
         });
         
         it("if loggerLevel is not debug, info, warn or error, then application error", function(){
         
             cluster.isWorker = false;
-            var logger = require("../Application/Logger");
+            var logger = require("../Application/Logger").instance();
             
             var hasExceptionBeenThrown = false;
             try{
@@ -112,15 +130,18 @@ describe("Partitioner", function() {
         var loggerLevels = ['debug', 'info', 'warn', 'error'];
         
         loggerLevels.forEach(function(test){
-            it(util.format("if loggerLevel is %s, then loggerLevel is set to %s", test, test), function(){
+            it(util.format("if loggerLevel is %s, then loggerLevel is set to %s", test, test), function(done){
         
                 cluster.isWorker = false;
-                var logger = require("../Application/Logger");
+                var logger = require("../Application/Logger").instance();
                 var partitioner = new Partitioner({
                     loggerLevel: test
                 });
                 
-                logger.transports.file.level.should.be.exactly(test);
+                setTimeout(function() {
+                    logger.transports.file.level.should.be.exactly(test);
+                    done();
+                }, 100);
             });    
         });
     });
