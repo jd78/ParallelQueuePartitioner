@@ -143,24 +143,24 @@ describe("Partitioner", function() {
             });    
         });
         
-        it("if configuration is undefined then console logging is disabled", function(done){
+        it("if configuration is undefined then console logging is enabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner();
             
             setTimeout(function() {
                 var logger = require("../Application/Logger").instance();
-                should.not.exists(logger.transports.console);
+                should.exists(logger.transports.console);
                 done();
             }, 100);
         });
         
-        it("if console logging is undefined then console logging is disabled", function(done){
+        it("if console logging is undefined then console logging is enabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner({});
             
             setTimeout(function() {
                 var logger = require("../Application/Logger").instance();
-                should.not.exists(logger.transports.console);
+                should.exists(logger.transports.console);
                 done();
             }, 100);
         });
@@ -175,7 +175,7 @@ describe("Partitioner", function() {
                 var logger = require("../Application/Logger").instance();
                 should.exists(logger.transports.console);
                 done();
-            }, 100);
+            }, 200);
         });
         
         it("if consoleLogging is false then console logging is disabled", function(done){
@@ -188,7 +188,7 @@ describe("Partitioner", function() {
                 var logger = require("../Application/Logger").instance();
                 should.not.exists(logger.transports.console);
                 done();
-            }, 100);
+            }, 300);
         });
         
         it("if consoleLogging is not true or false, then throw exception", function(){

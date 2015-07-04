@@ -32,9 +32,9 @@ function newLogger(enableConsoleLogging, loggerLevel){
       ]
     });
     
-    if(enableConsoleLogging == "true")
+    if(enableConsoleLogging)
       logger.add(winston.transports.Console, { level: loggerLevel });
-    
+      
     resolve(logger);
   });
 }

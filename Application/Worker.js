@@ -24,7 +24,7 @@ var queue = [];
 var inProgress = false;
 
 if(cluster.isWorker) {
-    Logger.new(process.env["consoleLogging"], process.env["loggerLevel"]).then(function(log){
+    Logger.new(process.env["consoleLogging"] === "true", process.env["loggerLevel"]).then(function(log){
         log.info("worker %d registered", process.pid);
     });
     

@@ -6,6 +6,7 @@ var Lock = require("./Application/ExecuteLocked");
 var lock = new Lock();
 var Worker = require("./Application/Worker");
 var validator = require("validator");
+var utils = require("./Application/Utils");
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -16,7 +17,7 @@ var defaultConfiguration = {
   numberOfWorkers: 1,
   cleanIdlePartitionsAfterMinutes: 15,
   loggerLevel: "error",
-  consoleLogging: false
+  consoleLogging: true
 };
 
 function Partitioner(configuration) {
@@ -27,18 +28,18 @@ function Partitioner(configuration) {
         validate(configuration);
     
     var config = configuration !== undefined ? configuration : defaultConfiguration;
-    numberOfWorkers = config.numberOfWorkers || 1;
-    this.partitionService = new PartitionService(config.cleanIdlePartitionsAfterMinutes || 15);
+    numberOfWorkers = utils.coalesce(config.numberOfWorkers, defaultConfiguration.numberOfWorkers);
+    this.partitionService = new PartitionService(utils.coalesce(config.cleanIdlePartitionsAfterMinutes, defaultConfiguration.cleanIdlePartitionsAfterMinutes));
     
     var processEnv = {};
     
     var Logger = require("./Application/Logger");
-    Logger.new(
-        config.consoleLogging, 
-        config.loggerLevel || defaultConfiguration.loggerLevel).then(function(log){
+    var consoleLogging = utils.coalesce(config.consoleLogging, defaultConfiguration.consoleLogging);
+    var loggerLevel = utils.coalesce(config.loggerLevel, defaultConfiguration.loggerLevel);
+    Logger.new(consoleLogging, loggerLevel).then(function(log){
             logger = log;    
-            processEnv["loggerLevel"] = config.loggerLevel || defaultConfiguration.loggerLevel;
-            processEnv["consoleLogging"] = config.consoleLogging || defaultConfiguration.consoleLogging;
+            processEnv["loggerLevel"] = loggerLevel;
+            processEnv["consoleLogging"] = consoleLogging;
         
             for(var i=0; i < numberOfWorkers; i++){
                 workers.push(new Worker(cluster.fork(processEnv)));

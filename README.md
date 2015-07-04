@@ -101,7 +101,7 @@ The partitioner cab be configured as follow:
 - numberOfWorkers, is the number of processes we want to run (default 1)
 - cleanIdlePartitionsAfterMinutes, after the given minutes, a job will clean the partition that are not in use for that given time (default 15 minutes)
 - loggerLevel, 'debug', 'info', 'warn', or 'error' (default 'error')
-- consoleLogging, true or false, enable or disable the console logging (default: false);
+- consoleLogging, true or false, enable or disable the console logging (default: true);
 
 ```js
 var partitioner = new Partitioner({
