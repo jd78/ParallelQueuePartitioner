@@ -1,6 +1,6 @@
 {
   "name": "parallel-queue-partitioner",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Round-Robin parallel task dispatcher that executes the tasks in sequence if related (same partitionId)",
   "homepage": "https://github.com/jd78/ParallelQueuePartitioner",
   "author": "Gennaro Del Sorbo <gennaro.delsorbo@gmail.com>",
