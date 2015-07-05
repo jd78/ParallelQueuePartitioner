@@ -90,7 +90,7 @@ function Start(){
 				console.log("sequential job ended");
 			});
         }
-    }, 2000); //Atbitraty delayer to wait all forks are completed
+    }, 2000); //Arbitrary delayer to wait all forks are completed
 }
 ```
 
