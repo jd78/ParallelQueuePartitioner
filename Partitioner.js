@@ -5,43 +5,54 @@ var jobs = require("./Application/Jobs");
 var Lock = require("./Application/ExecuteLocked");
 var lock = new Lock();
 var Worker = require("./Application/Worker");
-var logger = require("./Application/Logger");
 var validator = require("validator");
-
+var utils = require("./Application/Utils");
+var variables = require("./Application/CommonVariables");
 
 var workers = [];
 var workerPartitionIndex = 0;
 var numberOfWorkers;
+var logger;
 
 var defaultConfiguration = {
   numberOfWorkers: 1,
   cleanIdlePartitionsAfterMinutes: 15,
-  loggerLevel: "error"
+  loggerLevel: "error",
+  consoleLogger: true,
+  fileLogger: true,
+  fileLoggerPath: "./logger"
 };
 
 function Partitioner(configuration) {
+    if(cluster.isWorker)
+        throw new Error("a worker is trying to instantiate a partitioner");
+    
     if(configuration !== undefined)
         validate(configuration);
     
     var config = configuration !== undefined ? configuration : defaultConfiguration;
-    numberOfWorkers = config.numberOfWorkers || 1;
-    this.partitionService = new PartitionService(config.cleanIdlePartitionsAfterMinutes || 15);
+    numberOfWorkers = utils.coalesce(config.numberOfWorkers, defaultConfiguration.numberOfWorkers);
+    this.partitionService = new PartitionService(utils.coalesce(config.cleanIdlePartitionsAfterMinutes, defaultConfiguration.cleanIdlePartitionsAfterMinutes));
     
     var processEnv = {};
-    if(config.loggerLevel !== undefined){
-        logger.transports.file.level = config.loggerLevel;
-        logger.transports.console.level = config.loggerLevel;
-        processEnv["loggerLevel"] = config.loggerLevel;
-    }else {
-        processEnv["loggerLevel"] = defaultConfiguration.loggerLevel;
-    }
     
-    if(cluster.isWorker)
-        throw new Error("a worker is trying to instantiate a partitioner");
-    
-    for(var i=0; i < numberOfWorkers; i++){
-        workers.push(new Worker(cluster.fork(processEnv)));
-    }
+    var Logger = require("./Application/Logger");
+    var consoleLogger = utils.coalesce(config.consoleLogger, defaultConfiguration.consoleLogger);
+    var fileLogger = utils.coalesce(config.fileLogger, defaultConfiguration.fileLogger);
+    var fileLoggerPath = utils.coalesce(config.fileLoggerPath, defaultConfiguration.fileLoggerPath);
+    var loggerLevel = utils.coalesce(config.loggerLevel, defaultConfiguration.loggerLevel);
+    Logger.new(consoleLogger, loggerLevel, fileLogger, fileLoggerPath).then(function(log){
+            logger = log;    
+            processEnv[variables.loggerLevel] = loggerLevel;
+            processEnv[variables.consoleLogger] = consoleLogger;
+            processEnv[variables.fileLogger] = fileLogger;
+            processEnv[variables.fileLoggerPath] = fileLoggerPath;
+        
+            for(var i=0; i < numberOfWorkers; i++){
+                workers.push(new Worker(cluster.fork(processEnv)));
+            }
+        }
+    );
 }
 
 Partitioner.prototype.enqueueJob = function(job, callback){
@@ -86,7 +97,18 @@ function validate(configuration){
         || validator.equals(configuration.loggerLevel, 'error'))
     )
         throw new Error("loggerLevel should be debug, info, warn or error");
-        
+    if(configuration.consoleLogger !== undefined && !(
+        validator.equals(configuration.consoleLogger, true) 
+        || validator.equals(configuration.consoleLogger, false))
+    )
+        throw new Error("consoleLogger should be true or false");
+    if(configuration.fileLogger !== undefined && !(
+        validator.equals(configuration.fileLogger, true) 
+        || validator.equals(configuration.fileLogger, false))
+    )
+        throw new Error("fileLogger should be true or false");
+    if(configuration.fileLoggerPath !== undefined && typeof(configuration.fileLoggerPath) !== typeof(defaultConfiguration.fileLoggerPath))
+        throw new Error("fileLoggerPath should be a string");
 }
 
 module.exports = {

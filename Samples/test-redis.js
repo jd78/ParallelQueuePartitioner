@@ -72,7 +72,10 @@ if(cluster.isMaster) {
 function start(){
     var partitioner = new Partitioner({
         numberOfWorkers: 4,
-        loggerLevel: 'info'
+        loggerLevel: 'debug',
+        consoleLogger: true,
+        fileLogger: true,
+        fileLoggerPath: "./bin/logger"
     });
     
     setTimeout(function(){

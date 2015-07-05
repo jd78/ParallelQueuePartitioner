@@ -1,31 +1,40 @@
 var winston = require("winston");
-var fs = require("fs");
 var util = require("util");
+var q = require("q");
+var mkdirp = require("mkdirp");
+var cluster = require("cluster");
 
-var binPath = "bin";
-var servicePath = "parallel-queue-partitioner";
-var fullpath = util.format("./%s/%s", binPath, servicePath);
+var logger;
 
-if (!fs.existsSync(util.format("./%s", binPath))) {
-	fs.mkdirSync(util.format("./%s", binPath));
-}
-
-if (!fs.existsSync(fullpath)) {
-	fs.mkdirSync(fullpath);
-}
-
-var logger = new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)(),
-      new (winston.transports.File)({ 
-          filename: util.format("%s/pid-%s-partitioner.log", fullpath, process.pid),
+function newLogger(enableConsoleLogging, loggerLevel, enableFileLogger, fileLoggerPath){
+  return q.Promise(function(resolve){
+    
+    logger = new (winston.Logger)({
+      transports: []
+    });
+    
+    if(enableConsoleLogging)
+      logger.add(winston.transports.Console, { level: loggerLevel });
+    
+    if(enableFileLogger){
+      mkdirp(fileLoggerPath, function(err){
+        if(err) throw new Error(err);  
+        logger.add(winston.transports.File, {
+          filename: util.format("%s/%s-pid-%s-partitioner.log", fileLoggerPath, cluster.isMaster ? "master" : "worker", process.pid),
           handleExceptions: true,
           exitOnError: false,
-          level: 'error', //info, warning, error
+          level: loggerLevel, //'error', info, warning, error
           maxsize: 625000,
           zippedArchive: true
-      })
-    ]
-});
+        });
+      });
+    }
+      
+    resolve(logger);
+  });
+}
 
-module.exports = logger;
+module.exports = {
+  new: newLogger,
+  instance: function(){ return logger; }
+};

@@ -6,7 +6,7 @@ The relationship is defined through the "partitionId".
 The partitioner works on top of any queue/broker.
 
 ## Installation
-    $ npm install parallel-queue-partitioner --no-bin-links
+    $ npm install parallel-queue-partitioner
     
 # Usage
 
@@ -90,7 +90,7 @@ function Start(){
 				console.log("sequential job ended");
 			});
         }
-    }, 2000); //Atbitraty deleyer to wait all forks are completed
+    }, 2000); //Arbitrary delayer to wait all forks are completed
 }
 ```
 
@@ -99,20 +99,30 @@ function Start(){
 The partitioner cab be configured as follow:
 
 - numberOfWorkers, is the number of processes we want to run (default 1)
-- cleanIdlePartitionsAfterMinutes, after the given minutes, a job will clean the partition that are not in use for that given time (default 15 minutes),
-- loggerLevel, 'debug', 'info', 'warn', or 'error' (default 'error').
+- cleanIdlePartitionsAfterMinutes, after the given minutes, a job will clean the partition that are not in use for that given time (default 15 minutes)
+- loggerLevel, 'debug', 'info', 'warn', or 'error' (default 'error')
+- consoleLogger, true or false, enable or disable the console logger (default: true)
+- fileLogger, true or false, enable or disable the file logger (default: true)
+- fileLoggerPath, the path where the logs will be saved (default: "./logger")
 
 ```js
 var partitioner = new Partitioner({
     numberOfWorkers: 4,
     cleanIdlePartitionsAfterMinutes: 30,
-    loggerLevel: 'info'
+    loggerLevel: 'info',
+    consoleLogger: false,
+    fileLogger: false,
+    fileLoggerPath: "./bin/partitionerLogger"
 });
 ```
 
 ## Logger
 
-A logger will be created in the folder ./bin/parallel-queue-partitioner/partitioner.log
+If enabled, the logger will create the file in the folder specified by the user or, if not specified, in "./logger".
+The master and each worker will create its own log.
+The filenames are:
+- master-pid-{PIDID}-partitioner.log
+- worker-pid-{PIDID}-partitioner.log
 
 ## Exemple how to use the partitioner with redis
 

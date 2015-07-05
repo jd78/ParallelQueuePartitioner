@@ -1,7 +1,7 @@
 var _ = require("underscore");
 var moment = require("moment");
 var q = require("q");
-var logger = require("../Application/Logger");
+var Logger = require("../Application/Logger");
 var util = require("util");
 
 var Lock = require("../Application/ExecuteLocked");
@@ -17,6 +17,7 @@ function Partition(partitionId, worker) {
     this.updatedAt = moment().utc().format();
     
     setInterval(function() {
+        var logger = Logger.instance();
         logger.info(util.format("Partition cleanup fired for %d", partitionId));
         if(self.updatedAt <= moment().utc().subtract(cleanIdlePartitionsAfterMinutes, 'minutes').format())
             lock.execWrite(function(){ 
@@ -51,7 +52,7 @@ PartitionService.prototype.get = function(partitionId) {
                 resolve(maybePartition);
                 
             } catch(ex){
-                logger.error(ex);
+                Logger.instance().error(ex);
                 reject(ex);
             }
         }); 

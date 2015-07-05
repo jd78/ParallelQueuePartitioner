@@ -1,6 +1,6 @@
 var ReadWriteLock  = require("rwlock");
 var q = require("q");
-var logger = require("./Logger");
+var Logger = require("./Logger")
 
 function ExecuteLocked(){
     this.lock = new ReadWriteLock();
@@ -8,6 +8,7 @@ function ExecuteLocked(){
 
 ExecuteLocked.prototype.execRead = function(func){
     var deferred = q.defer();
+    var logger = Logger.instance();
     this.lock.readLock(function(release){
        func().then(function(obj){
             release();
@@ -22,6 +23,7 @@ ExecuteLocked.prototype.execRead = function(func){
 
 ExecuteLocked.prototype.execWrite = function(func){
     var deferred = q.defer();
+    var logger = Logger.instance();
     this.lock.writeLock(function(release){
        func().then(function(obj){
             release();
