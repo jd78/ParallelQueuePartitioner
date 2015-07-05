@@ -19,7 +19,8 @@ var defaultConfiguration = {
   cleanIdlePartitionsAfterMinutes: 15,
   loggerLevel: "error",
   consoleLogger: true,
-  fileLogger: true
+  fileLogger: true,
+  fileLoggerPath: "./logger"
 };
 
 function Partitioner(configuration) {
@@ -38,12 +39,14 @@ function Partitioner(configuration) {
     var Logger = require("./Application/Logger");
     var consoleLogger = utils.coalesce(config.consoleLogger, defaultConfiguration.consoleLogger);
     var fileLogger = utils.coalesce(config.fileLogger, defaultConfiguration.fileLogger);
+    var fileLoggerPath = utils.coalesce(config.fileLoggerPath, defaultConfiguration.fileLoggerPath);
     var loggerLevel = utils.coalesce(config.loggerLevel, defaultConfiguration.loggerLevel);
-    Logger.new(consoleLogger, loggerLevel, fileLogger).then(function(log){
+    Logger.new(consoleLogger, loggerLevel, fileLogger, fileLoggerPath).then(function(log){
             logger = log;    
             processEnv[variables.loggerLevel] = loggerLevel;
             processEnv[variables.consoleLogger] = consoleLogger;
             processEnv[variables.fileLogger] = fileLogger;
+            processEnv[variables.fileLoggerPath] = fileLoggerPath;
         
             for(var i=0; i < numberOfWorkers; i++){
                 workers.push(new Worker(cluster.fork(processEnv)));
@@ -104,6 +107,8 @@ function validate(configuration){
         || validator.equals(configuration.fileLogger, false))
     )
         throw new Error("fileLogger should be true or false");
+    if(configuration.fileLoggerPath !== undefined && typeof(configuration.fileLoggerPath) !== typeof(defaultConfiguration.fileLoggerPath))
+        throw new Error("fileLoggerPath should be a string");
 }
 
 module.exports = {

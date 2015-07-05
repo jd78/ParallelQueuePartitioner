@@ -37,25 +37,25 @@ var id=0;
 
 if(cluster.isMaster) {
     console.log('pushing messages');
-    // for (var i = 0; i < 50; i++) {
-    //     queue.create('jobs', {
-    //         partitionId: 0,
-    //         type: "sequential",
-    //         sequence: i
-    //     }).save(function(err) {
-    //         if (err) console.log(err);
-    //     });
-    // }
+    for (var i = 0; i < 50; i++) {
+        queue.create('jobs', {
+            partitionId: 0,
+            type: "sequential",
+            sequence: i
+        }).save(function(err) {
+            if (err) console.log(err);
+        });
+    }
     
-    // for (var i = 0; i < 50; i++) {
-    //     queue.create('jobs', {
-    //         partitionId: 1,
-    //         type: "sequential",
-    //         sequence: i
-    //     }).save(function(err) {
-    //         if (err) console.log(err);
-    //     });
-    // }
+    for (var i = 0; i < 50; i++) {
+        queue.create('jobs', {
+            partitionId: 1,
+            type: "sequential",
+            sequence: i
+        }).save(function(err) {
+            if (err) console.log(err);
+        });
+    }
     
     for (var i = 0; i < 150; i++) {
         queue.create('jobs', {
@@ -73,8 +73,9 @@ function start(){
     var partitioner = new Partitioner({
         numberOfWorkers: 4,
         loggerLevel: 'debug',
-        consoleLogger: false,
-        fileLogger: false
+        consoleLogger: true,
+        fileLogger: true,
+        fileLoggerPath: "./bin/logger"
     });
     
     setTimeout(function(){

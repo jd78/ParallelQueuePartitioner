@@ -1,23 +1,13 @@
 var winston = require("winston");
-var fs = require("fs");
 var util = require("util");
 var q = require("q");
+var mkdirp = require("mkdirp");
+var cluster = require("cluster");
 
 var logger;
 
-function newLogger(enableConsoleLogging, loggerLevel, enableFileLogger){
+function newLogger(enableConsoleLogging, loggerLevel, enableFileLogger, fileLoggerPath){
   return q.Promise(function(resolve){
-    var binPath = "bin";
-    var servicePath = "parallel-queue-partitioner";
-    var fullpath = util.format("./%s/%s", binPath, servicePath);
-  
-    if (!fs.existsSync(util.format("./%s", binPath))) {
-    	fs.mkdirSync(util.format("./%s", binPath));
-    }
-  
-    if (!fs.existsSync(fullpath)) {
-    	fs.mkdirSync(fullpath);
-    }
     
     logger = new (winston.Logger)({
       transports: []
@@ -26,15 +16,19 @@ function newLogger(enableConsoleLogging, loggerLevel, enableFileLogger){
     if(enableConsoleLogging)
       logger.add(winston.transports.Console, { level: loggerLevel });
     
-    if(enableFileLogger)
-      logger.add(winston.transports.File, {
-        filename: util.format("%s/pid-%s-partitioner.log", fullpath, process.pid),
-        handleExceptions: true,
-        exitOnError: false,
-        level: loggerLevel, //'error', info, warning, error
-        maxsize: 625000,
-        zippedArchive: true
+    if(enableFileLogger){
+      mkdirp(fileLoggerPath, function(err){
+        if(err) throw new Error(err);  
+        logger.add(winston.transports.File, {
+          filename: util.format("%s/%s-pid-%s-partitioner.log", fileLoggerPath, cluster.isMaster ? "master" : "worker", process.pid),
+          handleExceptions: true,
+          exitOnError: false,
+          level: loggerLevel, //'error', info, warning, error
+          maxsize: 625000,
+          zippedArchive: true
+        });
       });
+    }
       
     resolve(logger);
   });

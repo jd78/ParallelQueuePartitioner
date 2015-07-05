@@ -1,3 +1,9 @@
+var mkdirp = function(path, callback){
+    callback();
+};
+var proxyquire = require("proxyquire");
+proxyquire("../Application/Logger", {'mkdirp': mkdirp});
+
 var sinon = require("sinon");
 var should = require("should");
 var cluster = require("cluster");
@@ -231,7 +237,7 @@ describe("Partitioner", function() {
         it("if fileLogger is true then file logger is enabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner({
-                fileLogging: true
+                fileLogger: true
             });
             
             setTimeout(function() {
@@ -261,6 +267,58 @@ describe("Partitioner", function() {
             try{
                  var partitioner = new Partitioner({
                      fileLogger: 'test'
+                 });
+             } catch(ex) {
+                 hasExceptionBeenThrown = true;
+             }
+            
+             hasExceptionBeenThrown.should.be.exactly(true);
+        });
+        
+        
+        
+        it("if configuration is undefined then file logger path is ./logger", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner();
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                logger.transports.file.dirname.should.be.exactly("./logger");
+                done();
+            }, 100);
+        });
+        
+        it("if fileLoggerPath is undefined then file logger path is ./logger", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({});
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                logger.transports.file.dirname.should.be.exactly("./logger");
+                done();
+            }, 100);
+        });
+        
+        it("if fileLoggerPath is ./bin/logger then file logger path is ./bin/logger", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({
+                fileLoggerPath: "./bin/logger"
+            });
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                logger.transports.file.dirname.should.be.exactly("./bin/logger");
+                done();
+            }, 200);
+        });
+        
+        it("if fileLoggerPath is not a string, then throw exception", function(){
+            cluster.isWorker = false;
+            
+            var hasExceptionBeenThrown = false;
+            try{
+                 var partitioner = new Partitioner({
+                     fileLoggerPath: 1
                  });
              } catch(ex) {
                  hasExceptionBeenThrown = true;

@@ -1,5 +1,6 @@
 module.exports = {
     loggerLevel: "loggerLevel",
     consoleLogger: "consoleLogger",
-    fileLogger: "fileLogger"
+    fileLogger: "fileLogger",
+    fileLoggerPath: "fileLoggerPath"
 };

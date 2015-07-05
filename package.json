@@ -20,9 +20,6 @@
     "pub",
     "sub"
   ],
-  "bin": {
-    "parallel-queue-partitioner": "./bin/parallel-queue-partitioner"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -36,9 +33,11 @@
     "should": "^7.0.1",
     "sinon": "^1.15.3",
     "kue": "^0.9.3",
-    "process": "^0.11.1"
+    "process": "^0.11.1",
+    "proxyquire": "^1.6.0"
   },
   "dependencies": {
+    "mkdirp": "^0.5.1",
     "moment": "^2.10.3",
     "q": "^1.4.1",
     "rwlock": "^5.0.0",

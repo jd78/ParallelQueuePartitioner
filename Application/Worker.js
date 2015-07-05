@@ -26,7 +26,7 @@ var inProgress = false;
 
 if(cluster.isWorker) {
     Logger.new(process.env[variables.consoleLogger] === "true", process.env[variables.loggerLevel],
-        process.env[variables.fileLogger] === "true").then(function(log){
+        process.env[variables.fileLogger] === "true", process.env[variables.fileLoggerPath]).then(function(log){
         log.info("worker %d registered", process.pid);
     });
     
