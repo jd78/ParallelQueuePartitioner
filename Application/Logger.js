@@ -5,7 +5,7 @@ var q = require("q");
 
 var logger;
 
-function newLogger(enableConsoleLogging, loggerLevel){
+function newLogger(enableConsoleLogging, loggerLevel, enableFileLogger){
   return q.Promise(function(resolve){
     var binPath = "bin";
     var servicePath = "parallel-queue-partitioner";
@@ -20,20 +20,21 @@ function newLogger(enableConsoleLogging, loggerLevel){
     }
     
     logger = new (winston.Logger)({
-      transports: [
-        new (winston.transports.File)({ 
-            filename: util.format("%s/pid-%s-partitioner.log", fullpath, process.pid),
-            handleExceptions: true,
-            exitOnError: false,
-            level: loggerLevel, //'error', info, warning, error
-            maxsize: 625000,
-            zippedArchive: true
-        })
-      ]
+      transports: []
     });
     
     if(enableConsoleLogging)
       logger.add(winston.transports.Console, { level: loggerLevel });
+    
+    if(enableFileLogger)
+      logger.add(winston.transports.File, {
+        filename: util.format("%s/pid-%s-partitioner.log", fullpath, process.pid),
+        handleExceptions: true,
+        exitOnError: false,
+        level: loggerLevel, //'error', info, warning, error
+        maxsize: 625000,
+        zippedArchive: true
+      });
       
     resolve(logger);
   });

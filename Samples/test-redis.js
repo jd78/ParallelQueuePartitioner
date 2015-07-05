@@ -73,7 +73,8 @@ function start(){
     var partitioner = new Partitioner({
         numberOfWorkers: 4,
         loggerLevel: 'debug',
-        consoleLogging: false
+        consoleLogger: false,
+        fileLogger: false
     });
     
     setTimeout(function(){

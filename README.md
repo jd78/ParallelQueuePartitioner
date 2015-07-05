@@ -90,7 +90,7 @@ function Start(){
 				console.log("sequential job ended");
 			});
         }
-    }, 2000); //Atbitraty deleyer to wait all forks are completed
+    }, 2000); //Atbitraty delayer to wait all forks are completed
 }
 ```
 
@@ -101,14 +101,16 @@ The partitioner cab be configured as follow:
 - numberOfWorkers, is the number of processes we want to run (default 1)
 - cleanIdlePartitionsAfterMinutes, after the given minutes, a job will clean the partition that are not in use for that given time (default 15 minutes)
 - loggerLevel, 'debug', 'info', 'warn', or 'error' (default 'error')
-- consoleLogging, true or false, enable or disable the console logging (default: true);
+- consoleLogger, true or false, enable or disable the console logger (default: true);
+- fileLogger, true or false, enable or disable the file logger (default: true);
 
 ```js
 var partitioner = new Partitioner({
     numberOfWorkers: 4,
     cleanIdlePartitionsAfterMinutes: 30,
     loggerLevel: 'info',
-    consoleLogging: true
+    consoleLogger: false,
+    fileLogger: false
 });
 ```
 

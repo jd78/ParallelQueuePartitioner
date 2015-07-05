@@ -5,6 +5,7 @@ var ReadWriteLock  = require("rwlock");
 var queueLock = new ReadWriteLock();
 var progressLock = new ReadWriteLock();
 var Logger = require("./Logger");
+var variables = require("./CommonVariables");
 
 function Worker(worker){
     this.worker = worker;
@@ -24,7 +25,8 @@ var queue = [];
 var inProgress = false;
 
 if(cluster.isWorker) {
-    Logger.new(process.env["consoleLogging"] === "true", process.env["loggerLevel"]).then(function(log){
+    Logger.new(process.env[variables.consoleLogger] === "true", process.env[variables.loggerLevel],
+        process.env[variables.fileLogger] === "true").then(function(log){
         log.info("worker %d registered", process.pid);
     });
     

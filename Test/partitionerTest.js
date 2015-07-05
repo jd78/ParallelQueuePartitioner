@@ -143,7 +143,7 @@ describe("Partitioner", function() {
             });    
         });
         
-        it("if configuration is undefined then console logging is enabled", function(done){
+        it("if configuration is undefined then console logger is enabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner();
             
@@ -154,7 +154,7 @@ describe("Partitioner", function() {
             }, 100);
         });
         
-        it("if console logging is undefined then console logging is enabled", function(done){
+        it("if consoleLogger is undefined then console logger is enabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner({});
             
@@ -165,10 +165,10 @@ describe("Partitioner", function() {
             }, 100);
         });
         
-        it("if console logging is true then console logging is enabled", function(done){
+        it("if consoleLogger is true then console logger is enabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner({
-                consoleLogging: true
+                consoleLogger: true
             });
             
             setTimeout(function() {
@@ -178,10 +178,10 @@ describe("Partitioner", function() {
             }, 200);
         });
         
-        it("if consoleLogging is false then console logging is disabled", function(done){
+        it("if consoleLogger is false then console logger is disabled", function(done){
             cluster.isWorker = false;
             var partitioner = new Partitioner({
-                consoleLogging: false
+                consoleLogger: false
             });
             
             setTimeout(function() {
@@ -191,13 +191,76 @@ describe("Partitioner", function() {
             }, 300);
         });
         
-        it("if consoleLogging is not true or false, then throw exception", function(){
+        it("if consoleLogger is not true or false, then throw exception", function(){
             cluster.isWorker = false;
             
             var hasExceptionBeenThrown = false;
             try{
                  var partitioner = new Partitioner({
-                     consoleLogging: 'test'
+                     consoleLogger: 'test'
+                 });
+             } catch(ex) {
+                 hasExceptionBeenThrown = true;
+             }
+            
+             hasExceptionBeenThrown.should.be.exactly(true);
+        });
+        
+        it("if configuration is undefined then file logger is enabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner();
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.exists(logger.transports.file);
+                done();
+            }, 100);
+        });
+        
+        it("if fileLogger is undefined then file logger is enabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({});
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.exists(logger.transports.file);
+                done();
+            }, 100);
+        });
+        
+        it("if fileLogger is true then file logger is enabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({
+                fileLogging: true
+            });
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.exists(logger.transports.file);
+                done();
+            }, 200);
+        });
+        
+        it("if fileLogger is false then file logger is disabled", function(done){
+            cluster.isWorker = false;
+            var partitioner = new Partitioner({
+                fileLogger: false
+            });
+            
+            setTimeout(function() {
+                var logger = require("../Application/Logger").instance();
+                should.not.exists(logger.transports.file);
+                done();
+            }, 300);
+        });
+        
+        it("if fileLogger is not true or false, then throw exception", function(){
+            cluster.isWorker = false;
+            
+            var hasExceptionBeenThrown = false;
+            try{
+                 var partitioner = new Partitioner({
+                     fileLogger: 'test'
                  });
              } catch(ex) {
                  hasExceptionBeenThrown = true;

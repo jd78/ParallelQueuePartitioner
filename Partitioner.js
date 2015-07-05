@@ -7,6 +7,7 @@ var lock = new Lock();
 var Worker = require("./Application/Worker");
 var validator = require("validator");
 var utils = require("./Application/Utils");
+var variables = require("./Application/CommonVariables");
 
 var workers = [];
 var workerPartitionIndex = 0;
@@ -17,7 +18,8 @@ var defaultConfiguration = {
   numberOfWorkers: 1,
   cleanIdlePartitionsAfterMinutes: 15,
   loggerLevel: "error",
-  consoleLogging: true
+  consoleLogger: true,
+  fileLogger: true
 };
 
 function Partitioner(configuration) {
@@ -34,12 +36,14 @@ function Partitioner(configuration) {
     var processEnv = {};
     
     var Logger = require("./Application/Logger");
-    var consoleLogging = utils.coalesce(config.consoleLogging, defaultConfiguration.consoleLogging);
+    var consoleLogger = utils.coalesce(config.consoleLogger, defaultConfiguration.consoleLogger);
+    var fileLogger = utils.coalesce(config.fileLogger, defaultConfiguration.fileLogger);
     var loggerLevel = utils.coalesce(config.loggerLevel, defaultConfiguration.loggerLevel);
-    Logger.new(consoleLogging, loggerLevel).then(function(log){
+    Logger.new(consoleLogger, loggerLevel, fileLogger).then(function(log){
             logger = log;    
-            processEnv["loggerLevel"] = loggerLevel;
-            processEnv["consoleLogging"] = consoleLogging;
+            processEnv[variables.loggerLevel] = loggerLevel;
+            processEnv[variables.consoleLogger] = consoleLogger;
+            processEnv[variables.fileLogger] = fileLogger;
         
             for(var i=0; i < numberOfWorkers; i++){
                 workers.push(new Worker(cluster.fork(processEnv)));
@@ -90,11 +94,16 @@ function validate(configuration){
         || validator.equals(configuration.loggerLevel, 'error'))
     )
         throw new Error("loggerLevel should be debug, info, warn or error");
-    if(configuration.consoleLogging !== undefined && !(
-        validator.equals(configuration.consoleLogging, true) 
-        || validator.equals(configuration.consoleLogging, false))
+    if(configuration.consoleLogger !== undefined && !(
+        validator.equals(configuration.consoleLogger, true) 
+        || validator.equals(configuration.consoleLogger, false))
     )
-        throw new Error("consoleLogging should be true or false");
+        throw new Error("consoleLogger should be true or false");
+    if(configuration.fileLogger !== undefined && !(
+        validator.equals(configuration.fileLogger, true) 
+        || validator.equals(configuration.fileLogger, false))
+    )
+        throw new Error("fileLogger should be true or false");
 }
 
 module.exports = {
