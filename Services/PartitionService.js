@@ -1,11 +1,11 @@
-var _ = require("underscore");
-var moment = require("moment");
-var q = require("q");
-var Logger = require("../Application/Logger");
-var util = require("util");
+const _ = require("underscore");
+const moment = require("moment");
+const q = require("q");
+const Logger = require("../Application/Logger");
+const util = require("util");
 
-var Lock = require("../Application/ExecuteLocked");
-var lock = new Lock();
+const Lock = require("../Application/ExecuteLocked");
+const lock = new Lock();
 
 var partitions = [];
 var cleanIdlePartitionsAfterMinutes;
