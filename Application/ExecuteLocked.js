@@ -1,39 +1,42 @@
-var ReadWriteLock  = require("rwlock");
-var q = require("q");
-var Logger = require("./Logger")
+"use strict"
 
-function ExecuteLocked(){
-    this.lock = new ReadWriteLock();
+const ReadWriteLock = require("rwlock")
+const Logger = require("./Logger")
+
+class ExecuteLocked {
+    constructor() {
+        this.lock = new ReadWriteLock()
+    }
+
+    execRead(func) {
+        return new Promise((resolve, reject) => {
+            let logger = Logger.instance()
+            this.lock.readLock(release => {
+                func().then(obj => {
+                    release()
+                    resolve(obj)
+                }).catch(err => {
+                    logger.err(err)
+                    reject(err)
+                })
+            })
+        })
+    }
+
+    execWrite(func) {
+        return new Promise((resolve, reject) => {
+            let logger = Logger.instance()
+            this.lock.writeLock(release => {
+                func().then(obj => {
+                    release()
+                    resolve(obj)
+                }).catch(err => {
+                    logger.err(err)
+                    reject(err)
+                })
+            })
+        })
+    }
 }
 
-ExecuteLocked.prototype.execRead = function(func){
-    var deferred = q.defer();
-    var logger = Logger.instance();
-    this.lock.readLock(function(release){
-       func().then(function(obj){
-            release();
-            deferred.resolve(obj);
-       }).catch(function(err){
-           logger.err(err);
-           deferred.reject(err);
-       });
-    });
-    return deferred.promise;
-};
-
-ExecuteLocked.prototype.execWrite = function(func){
-    var deferred = q.defer();
-    var logger = Logger.instance();
-    this.lock.writeLock(function(release){
-       func().then(function(obj){
-            release();
-            deferred.resolve(obj);
-       }).catch(function(err){
-           logger.err(err);
-           deferred.reject(err);
-       });
-    });    
-    return deferred.promise;
-};
-
-module.exports = ExecuteLocked;
+module.exports = ExecuteLocked
