@@ -4,33 +4,13 @@ const Logger = require("../Application/Logger")
 
 let _jobs = new Map()
 
-class Job {
-    
-    constructor(id, callback){
-        this.id = id;
-        this.callback = callback;
-    }
-    
-    done() {
-        if(this.callback)
-            this.callback()
-        _jobs.delete(this.id)
-    }
-    
-    error(err) {
-        if(this.callback)
-            this.callback(err, this.id);
-        _jobs.delete(this.id)
-    }
-}
-
 class JobService {    
     constructor(){ }
     
     push(id, callback) {
         return new Promise((resolve, reject) => {
             try {
-                _jobs.set(id, new Job(id, callback))
+                _jobs.set(id, callback)
                 resolve()
             } catch(ex) {
                 Logger.instance().error(ex)
@@ -40,11 +20,17 @@ class JobService {
     }
     
     done(id) {
-        _jobs.get(id).done()
+        let job = _jobs.get(id)
+        if(job)
+            job()
+        _jobs.delete(id)
     }
     
     error(id, err) {
-        _jobs.get(id).error(err)
+        let job = _jobs.get(id)
+        if(job)
+            job(err, id)
+        _jobs.delete(id)
     }
 }
 
