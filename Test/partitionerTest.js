@@ -87,9 +87,9 @@ describe("Partitioner", function() {
         });
         
         it("if configuration is undefined, then loggerLevel is set to error", function(done){
-        
             cluster.isWorker = false;
             var partitioner = new Partitioner();
+            console.log(partitioner)
             
             setTimeout(function(){
                 var logger = require("../Application/Logger").instance();

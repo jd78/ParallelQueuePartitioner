@@ -6,7 +6,7 @@
   "author": "Gennaro Del Sorbo <gennaro.delsorbo@gmail.com>",
   "main": "Partitioner.js",
   "scripts": {
-    "test": "make"
+    "test": "gulp"
   },
   "keywords": [
     "parallel",
@@ -29,12 +29,14 @@
     "url": "https://github.com/jd78/ParallelQueuePartitioner/issues"
   },
   "devDependencies": {
-    "mocha": "^2.2.5",
-    "should": "^7.0.1",
-    "sinon": "^1.15.3",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^2.2.0",
     "kue": "^0.9.3",
+    "mocha": "^2.2.5",
     "process": "^0.11.1",
-    "proxyquire": "^1.6.0"
+    "proxyquire": "^1.6.0",
+    "should": "^7.0.1",
+    "sinon": "^1.15.3"
   },
   "dependencies": {
     "mkdirp": "^0.5.1",

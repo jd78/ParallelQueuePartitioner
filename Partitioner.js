@@ -41,7 +41,7 @@ function Partitioner(configuration) {
     var fileLogger = utils.coalesce(config.fileLogger, defaultConfiguration.fileLogger);
     var fileLoggerPath = utils.coalesce(config.fileLoggerPath, defaultConfiguration.fileLoggerPath);
     var loggerLevel = utils.coalesce(config.loggerLevel, defaultConfiguration.loggerLevel);
-    Logger.new(consoleLogger, loggerLevel, fileLogger, fileLoggerPath).then(function(log){
+    Logger.new(consoleLogger, loggerLevel, fileLogger, fileLoggerPath).then(function(log) {
             logger = log;    
             processEnv[variables.loggerLevel] = loggerLevel;
             processEnv[variables.consoleLogger] = consoleLogger;
