@@ -6,7 +6,6 @@ var sinon = require("sinon");
 var should = require("should");
 var q = require("q");
 
-
 describe("Jobs Test", function(){
 
     process.send = function(){};
