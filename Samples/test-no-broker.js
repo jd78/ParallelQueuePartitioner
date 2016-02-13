@@ -44,7 +44,7 @@ function Start(){
                 partitioner.enqueueJob({
                     id: i,
                     partitionId: i%3,
-                    type: "testt",
+                    type: "testt", //undefined job exception!!
                     data: { }
                 }, function(err){
                     if(err !== undefined)

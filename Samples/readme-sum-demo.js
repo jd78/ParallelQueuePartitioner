@@ -46,5 +46,5 @@ function Start(){
 			});
         }
 		
-    }, 2000); //Atbitraty deleyer to wait all forks are completed
+    }, 2000); //Arbitraty deleyer to wait all forks are completed
 }

@@ -25,6 +25,8 @@ class Worker {
 let queue = []
 
 function *getFromQueue() {
+    if(queue.length === 0)
+        return undefined
     while(queue.length > 0)
         yield queue.shift()
 }
@@ -32,16 +34,20 @@ function *getFromQueue() {
 let q = getFromQueue();
 
 let processQueue = () => {
+    let reprocess = () => {
+        setTimeout(() => processQueue(), 1)
+    }
+    
     let job = q.next().value
     if(!job) {
         q = getFromQueue();
-        return processQueue();
+        return reprocess()
     }
     
     job().then(() => {
-        processQueue() 
+        reprocess()
     }).catch(() => {
-        processQueue()
+        reprocess()
     }) 
 }
 
@@ -50,7 +56,7 @@ if (cluster.isWorker) {
         process.env[variables.fileLogger] === "true", process.env[variables.fileLoggerPath]).then(log => {
             log.info("worker %d registered", process.pid)
         })
-
+         
     process.on('message', job => {
         Logger.instance().debug("job %d received", job.id)
         queue.push(() => { return jobs.executeJob(job) })

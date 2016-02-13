@@ -15,7 +15,7 @@ class Partition {
     constructor(partitionId, worker) {
         this.partitionId = partitionId
         this.worker = worker
-        .updatedAt = moment().utc().format()
+        this.updatedAt = moment().utc().format()
         this.isAliveCheck = setInterval(() => {
             var logger = Logger.instance()
             logger.info(util.format("Partition cleanup fired for %d", partitionId))
