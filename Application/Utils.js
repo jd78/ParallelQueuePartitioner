@@ -1,5 +1,7 @@
 "use strict"
 
+const _ = require("underscore")
+
 class Utils {
     constructor() {}
     
@@ -7,6 +9,17 @@ class Utils {
         if(!(obj === null) && !(obj === undefined))
             return obj;
         return other;
+    }
+    
+    isNull(val) {
+        return val === null || val === undefined
+    }
+    
+    areNotNull() {
+        
+        return _.find(_.values(arguments), val => {
+            return this.isNull(val)
+        }) === undefined
     }
 }
 
