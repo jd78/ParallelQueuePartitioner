@@ -7,7 +7,7 @@ const cluster = require("cluster")
 
 let logger
 
-function newLogger(enableConsoleLogging, loggerLevel, enableFileLogger, fileLoggerPath) {
+let newLogger = (enableConsoleLogging, loggerLevel, enableFileLogger, fileLoggerPath) => {
     return new Promise(resolve => {
 
         logger = new (winston.Logger)({

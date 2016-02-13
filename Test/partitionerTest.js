@@ -1,8 +1,8 @@
-var mkdirp = function(path, callback){
+var mkdirp = function (path, callback) {
     callback();
 };
 var proxyquire = require("proxyquire");
-proxyquire("../Application/Logger", {'mkdirp': mkdirp});
+proxyquire("../Application/Logger", { 'mkdirp': mkdirp });
 
 var sinon = require("sinon");
 var should = require("should");
@@ -12,22 +12,22 @@ var util = require("util");
 
 process.setMaxListeners(0);
 
-describe("Partitioner", function() {
-    
+describe("Partitioner", function () {
+
     var forkStub;
-    
-    beforeEach(function() {
+
+    beforeEach(function () {
         var workerObj = {
-            on: function(){}
+            on: function () { }
         };
-        forkStub = sinon.stub(cluster, "fork").returns(workerObj);    
+        forkStub = sinon.stub(cluster, "fork").returns(workerObj);
     });
-    
-    afterEach(function() {
-       forkStub.restore(); 
+
+    afterEach(function () {
+        forkStub.restore();
     });
-    
-    describe("Configuration", function(){
+
+    describe("Configuration", function () {
         
         it("if configuration is undefined, then instantiate 1 worker", function(done){
         
@@ -183,13 +183,13 @@ describe("Partitioner", function() {
             }, 200);
         });
         
-        it("if consoleLogger is false then console logger is disabled", function(done){
+        it("if consoleLogger is false then console logger is disabled", function (done) {
             cluster.isWorker = false;
             var partitioner = new Partitioner({
                 consoleLogger: false
             });
             
-            setTimeout(function() {
+            setTimeout(function () {
                 var logger = require("../Application/Logger").instance();
                 should.not.exists(logger.transports.console);
                 done();
@@ -215,7 +215,7 @@ describe("Partitioner", function() {
             cluster.isWorker = false;
             var partitioner = new Partitioner();
             
-            setTimeout(function() {
+               setTimeout(function() {
                 var logger = require("../Application/Logger").instance();
                 should.exists(logger.transports.file);
                 done();

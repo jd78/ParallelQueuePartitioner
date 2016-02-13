@@ -47,7 +47,7 @@ describe("PartitionService tests", function(){
       exceptionThrown.should.be.exactly(true);
    });
    
-   it("PartitionService parameter mist be greater than 0", function(){
+   it("PartitionService parameter must be greater than 0", function(){
       var exceptionThrown = false;
       
       try {
