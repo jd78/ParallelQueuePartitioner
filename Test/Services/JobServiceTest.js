@@ -1,13 +1,13 @@
-var jobService = require("../../Services/JobService");
+const jobService = require("../../Services/JobService")
 
-describe("JobService Test", function(){
-   var jobId = 1;
-   
-   it("push new job", function(){
-       return jobService.push(jobId, function(){}).then(function(){});
-   });
-   
-   it("job done", function(){
-       jobService.done(jobId);
-   });
-});
+describe("JobService Test", () => {
+    var jobId = 1
+
+    it("push new job", () => {
+        return jobService.push(jobId, () => { }).then(() => { })
+    })
+
+    it("job done", () => {
+        jobService.done(jobId)
+    })
+})

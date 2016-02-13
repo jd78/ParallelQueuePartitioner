@@ -1,43 +1,45 @@
 "use strict"
 
-var q = require("q");
-var winston = require("winston");
+const q = require("q");
+const winston = require("winston");
 
-var Logger = require("../../Application/Logger");
-var sinon = require("sinon");
+const Logger = require("../../Application/Logger");
+const sinon = require("sinon");
 
-let _newStub;
-let _instanceStub;
+class Stubs {
+    constructor() {
+        this.newStub
+        this.instanceStub
+    }
 
-function Stubs(){ }
+    stubLogs() {
+        let log = {
+            transports: {
+                file: {
+                    level: ''
+                }
+            },
+            debug: () => { },
+            info: () => { },
+            warn: () => { },
+            error: () => { }
+        };
 
-Stubs.prototype.stubLogs = function(){
-    var log = {
-        transports: {
-            file: {
-                level: ''
-            }
-        },
-        debug: function(){},
-        info: function(){},
-        warn: function(){},
-        error: function(){}
-    };
-    
-    _newStub = sinon.stub(Logger, "new", function(consoleEnabled, loggerLevel){
-        return q.Promise(function(resolve){
-            resolve(log);
+        this.newStub = sinon.stub(Logger, "new", (consoleEnabled, loggerLevel) => {
+            return q.Promise(resolve => {
+                resolve(log);
+            });
         });
-    });
-    
-    _instanceStub = sinon.stub(Logger, "instance", function(){
-        return log;
-    });
-};
 
-Stubs.prototype.restoreLogs = () => {
-    _newStub.restore()
-    _instanceStub.restore()
+        this.instanceStub = sinon.stub(Logger, "instance", () => {
+            return log;
+        });
+    };
+
+    restoreLogs() {
+        this.newStub.restore()
+        this.instanceStub.restore()
+    }
 }
 
 module.exports = new Stubs();

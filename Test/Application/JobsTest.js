@@ -1,73 +1,72 @@
-var stubs = require("../Common/stubs");
-var jobs = require("../../Application/Jobs");
-var sinon = require("sinon");
-var should = require("should");
-var q = require("q");
+const stubs = require("../Common/stubs")
+const jobs = require("../../Application/Jobs")
+const sinon = require("sinon")
+const should = require("should")
 
-describe("Jobs Test", function(){
+describe("Jobs Test", () => {
 
-    process.send = function(){};
-    var processSpy = sinon.spy(process, "send");
-    
+    process.send = () => { }
+    var processSpy = sinon.spy(process, "send")
+
     beforeEach(() => {
-        stubs.stubLogs();        
+        stubs.stubLogs()
     })
-    
-    afterEach(function(){
-        processSpy.reset();
-        stubs.restoreLogs();
-    });
-    
+
+    afterEach(() => {
+        processSpy.reset()
+        stubs.restoreLogs()
+    })
+
     var job = {
         id: 1,
         partitionId: 1,
         type: 'test'
-    };
-    
-    it("unregistered job", function(done) {
-        jobs.executeJob(job).then(function(){
-            throw new Error("Exception not thrown");
-        }).catch(function(){
-            processSpy.calledOnce.should.be.exactly(true);
-            done();
-        });
-    });
-    
-    it("execute job", function(done) {
-        var execCalled = false;
-        
-        jobs['test'] = function(job){
-            return q.Promise(function(resolve){
-                execCalled = true;
-                resolve();
-            });
-        };
-        
-        jobs.executeJob(job).then(function(){
-            execCalled.should.be.exactly(true);
-            processSpy.calledOnce.should.be.exactly(true);
-            done();
-        }).catch(function(){
-            throw new Error("Exception not supposed to be trown");
-        });
-    });
-    
-    it("execute job throws exception", function(done) {
-        var execCalled = false;
-        
-        jobs['test'] = function(job){
-            return q.Promise(function(resolve){
-                execCalled = true;
-                throw new Error("exception");
-            });
-        };
-        
-        jobs.executeJob(job).then(function(){
-            
-        }).catch(function(){
-            execCalled.should.be.exactly(true);
-            processSpy.calledOnce.should.be.exactly(true);
-            done();
-        });
-    });
-});
+    }
+
+    it("unregistered job", done => {
+        jobs.executeJob(job).then(() => {
+            throw new Error("Exception not thrown")
+        }).catch(() => {
+            processSpy.calledOnce.should.be.exactly(true)
+            done()
+        })
+    })
+
+    it("execute job", done => {
+        var execCalled = false
+
+        jobs['test'] = function (job) {
+            return new Promise(resolve => {
+                execCalled = true
+                resolve()
+            })
+        }
+
+        jobs.executeJob(job).then(() => {
+            execCalled.should.be.exactly(true)
+            processSpy.calledOnce.should.be.exactly(true)
+            done()
+        }).catch(() => {
+            throw new Error("Exception not supposed to be trown")
+        })
+    })
+
+    it("execute job throws exception", done => {
+        var execCalled = false
+
+        jobs['test'] = job => {
+            return new Promise(resolve => {
+                execCalled = true
+                throw new Error("exception")
+            })
+        }
+
+        jobs.executeJob(job).then(() => {
+
+        }).catch(() => {
+            execCalled.should.be.exactly(true)
+            processSpy.calledOnce.should.be.exactly(true)
+            done()
+        })
+    })
+})

@@ -9,19 +9,19 @@ describe("Utils Test", () => {
         let second = 1;
         utils.coalesce(first, second).should.equal(second);
     })
-    
+
     it("If first is undefined, get the second", () => {
         let first;
         let second = 1;
         utils.coalesce(first, second).should.equal(second);
     })
-    
+
     it("If first is false, get first", () => {
         let first = false;
         let second = 1;
         utils.coalesce(first, second).should.equal(first);
     })
-    
+
     it("If first is not null, get first", () => {
         let first = 1;
         let second = 2;
