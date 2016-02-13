@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const mocha = require('gulp-mocha');
+const gulpSequence = require('gulp-sequence');
 
 gulp.task('partitionerTest', () => {
 	return gulp.src(['./Test/partitionerTest.js'], 
@@ -40,6 +41,8 @@ gulp.task('servicesTest', () => {
     )
 })
 
-gulp.task('default', ['partitionerTest', 'applicationTest', 'servicesTest'], () =>{
+gulp.task('test sequence', gulpSequence('applicationTest', 'servicesTest', 'partitionerTest'));
+
+gulp.task('default', ['test sequence'], () =>{
     process.exit();
 });

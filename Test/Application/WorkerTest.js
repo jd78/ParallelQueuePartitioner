@@ -1,8 +1,6 @@
 "use strict"
 
 const stubs = require("../Common/stubs")
-stubs.stubLogs()
-
 const cluster = require("cluster")
 cluster.isWorker = true;
 const sinon = require("sinon")
@@ -27,10 +25,12 @@ describe('Worker test', () => {
             on: function () { }
         };
         forkStub = sinon.stub(cluster, "fork").returns(workerObj)
+        stubs.stubLogs()
     });
 
     afterEach(function () {
         forkStub.restore();
+        stubs.restoreLogs()
     });
     
     it('worker error event', () => {
@@ -86,5 +86,9 @@ describe('Worker test', () => {
         
         processQueueStub.calledOnce.should.be.true()
         pushStub.calledOnce.should.be.true()
+        
+        pushStub.restore()
     })
+    
+    processQueueStub.restore()
 })

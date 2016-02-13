@@ -1,6 +1,4 @@
 var stubs = require("../Common/stubs");
-stubs.stubLogs();
-
 var jobs = require("../../Application/Jobs");
 var sinon = require("sinon");
 var should = require("should");
@@ -11,8 +9,13 @@ describe("Jobs Test", function(){
     process.send = function(){};
     var processSpy = sinon.spy(process, "send");
     
+    beforeEach(() => {
+        stubs.stubLogs();        
+    })
+    
     afterEach(function(){
         processSpy.reset();
+        stubs.restoreLogs();
     });
     
     var job = {
