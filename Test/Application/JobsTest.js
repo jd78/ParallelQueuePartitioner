@@ -1,3 +1,5 @@
+"use strict"
+
 const stubs = require("../Common/stubs")
 const jobs = require("../../Application/Jobs")
 const sinon = require("sinon")

@@ -1,3 +1,5 @@
+"use strict"
+
 const jobService = require("../../Services/JobService")
 
 describe("JobService Test", () => {

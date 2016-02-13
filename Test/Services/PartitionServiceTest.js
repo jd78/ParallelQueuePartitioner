@@ -1,3 +1,5 @@
+"use strict"
+
 const PartitionService = require("../../Services/PartitionService")
 const partitionService = new PartitionService(10)
 const should = require("should")
