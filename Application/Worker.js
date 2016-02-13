@@ -5,6 +5,7 @@ const cluster = require("cluster")
 const jobs = require("./Jobs")
 const Logger = require("./Logger")
 const variables = require("./CommonVariables")
+const queue = require("./Queue")
 
 class Worker {
     constructor(worker) {
@@ -22,35 +23,6 @@ class Worker {
     }
 }
 
-let queue = []
-
-function *getFromQueue() {
-    if(queue.length === 0)
-        return undefined
-    while(queue.length > 0)
-        yield queue.shift()
-}
-
-let q = getFromQueue();
-
-let processQueue = () => {
-    let reprocess = () => {
-        setTimeout(() => processQueue(), 1)
-    }
-    
-    let job = q.next().value
-    if(!job) {
-        q = getFromQueue();
-        return reprocess()
-    }
-    
-    job().then(() => {
-        reprocess()
-    }).catch(() => {
-        reprocess()
-    }) 
-}
-
 if (cluster.isWorker) {
     Logger.new(process.env[variables.consoleLogger] === "true", process.env[variables.loggerLevel],
         process.env[variables.fileLogger] === "true", process.env[variables.fileLoggerPath]).then(log => {
@@ -62,7 +34,7 @@ if (cluster.isWorker) {
         queue.push(() => { return jobs.executeJob(job) })
     })
     
-    processQueue()
+    queue.processQueue()
 }
 
 module.exports = Worker
