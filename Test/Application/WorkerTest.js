@@ -4,13 +4,17 @@ const stubs = require("../Common/stubs")
 stubs.stubLogs()
 
 const cluster = require("cluster")
-const Worker = require("../../Application/Worker")
+cluster.isWorker = true;
 const sinon = require("sinon")
 const should = require("should")
 const EventEmitter = require('events')
 const util = require('util')
 const Message = require("../../Entities/Message")
 const jobService = require("../../Services/JobService")
+
+const queue = require("../../Application/Queue")
+let processQueueStub = sinon.stub(queue, "processQueue")
+const Worker = require("../../Application/Worker")
 
 process.setMaxListeners(0);
 
@@ -73,5 +77,14 @@ describe('Worker test', () => {
         
         errorStub.restore()
         doneStub.restore()
+    })
+    
+    it('worker queue job', () => {
+        let pushStub = sinon.stub(queue, "push")
+        
+        process.emit('message', 1)
+        
+        processQueueStub.calledOnce.should.be.true()
+        pushStub.calledOnce.should.be.true()
     })
 })
