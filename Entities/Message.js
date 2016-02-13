@@ -2,9 +2,9 @@
 
 class Message {
     constructor(id, err){
-        this.id = id;
-        this.err = err;       
+        this.id = id
+        this.err = err       
     }
 }
 
-module.exports = Message;
+module.exports = Message

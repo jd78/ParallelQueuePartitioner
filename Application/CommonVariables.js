@@ -3,4 +3,4 @@ module.exports = {
     consoleLogger: "consoleLogger",
     fileLogger: "fileLogger",
     fileLoggerPath: "fileLoggerPath"
-};
+}

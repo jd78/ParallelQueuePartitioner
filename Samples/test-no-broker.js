@@ -1,24 +1,25 @@
-var Partitioner = require("../Partitioner").Partitioner;
-var cluster = require("cluster");
-var registerJob = require("../Partitioner").registerJob;
-var q = require("q");
+"use strict"
+
+const Partitioner = require("../Partitioner").Partitioner;
+const cluster = require("cluster");
+const registerJob = require("../Partitioner").registerJob;
 
 if(cluster.isWorker) {
-    registerJob('test', function(job){
-        return q.Promise(function(resolve){
+    registerJob('test', job => {
+        return new Promise(resolve => {
             console.log("the job has been executed by " + process.pid);
             resolve();
         });
     });
-    registerJob('sum', function(job){
-        return q.Promise(function(resolve){
+    registerJob('sum', job => {
+        return new Promise(resolve => {
             var sum = job.data.one + job.data.two;
             console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
             resolve();
         });
     });
-    registerJob('slow', function(job){
-        return q.Promise(function(resolve) {
+    registerJob('slow', job => {
+        return new Promise(resolve => {
             console.log("slow job started. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
             for(var i=0; i<999999999; i++){
             
@@ -29,10 +30,7 @@ if(cluster.isWorker) {
     });
 }
 
-if(cluster.isMaster)
-    Start();
-    
-function Start(){
+let start = () => {
     var partitioner = new Partitioner({
         numberOfWorkers: 4
     });
@@ -77,3 +75,6 @@ function Start(){
         
     }, 2000);
 }
+
+if(cluster.isMaster)
+    start();
