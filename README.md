@@ -130,8 +130,7 @@ The filenames are:
 
 "use strict"
 
-const Partitioner = require("../Partitioner").Partitioner
-const registerJob = require("../Partitioner").registerJob
+const parallelQueuePartitioner = require('parallel-queue-partitioner');
 const cluster = require("cluster")
 const process = require('process')
 
@@ -144,14 +143,14 @@ const queue = kue.createQueue({
 })
 
 if(cluster.isWorker) {
-    registerJob('test', job => {
+    parallelQueuePartitioner.registerJob('test', job => {
         return new Promise(resolve => {
             console.log("the job has been executed by %d", process.pid)
             resolve()
         })
     })
     
-    registerJob('sequential', job => {
+    parallelQueuePartitioner.registerJob('sequential', job => {
         return new Promise(resolve => {
             console.log("delayed in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence)
             setTimeout(() => {
