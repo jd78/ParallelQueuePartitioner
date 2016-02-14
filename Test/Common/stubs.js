@@ -1,6 +1,5 @@
 "use strict"
 
-const q = require("q");
 const winston = require("winston");
 
 const Logger = require("../../Application/Logger");

@@ -25,6 +25,32 @@ const defaultConfiguration = {
     fileLoggerPath: "./logger"
 };
 
+let validate = configuration => {
+    if (!utils.isNull(configuration.numberOfWorkers) && !validator.isInt(configuration.numberOfWorkers, { min: 1 }))
+        throw new Error("numberOfWorkers should be an integer >= 1");
+    if (!utils.isNull(configuration.cleanIdlePartitionsAfterMinutes) && !validator.isInt(configuration.cleanIdlePartitionsAfterMinutes, { min: 1 }))
+        throw new Error("cleanIdlePartitionsAfterMinutes should be an integer >= 1");
+    if (!utils.isNull(configuration.loggerLevel) && !(
+        validator.equals(configuration.loggerLevel, 'debug')
+        || validator.equals(configuration.loggerLevel, 'info')
+        || validator.equals(configuration.loggerLevel, 'warn')
+        || validator.equals(configuration.loggerLevel, 'error'))
+        )
+        throw new Error("loggerLevel should be debug, info, warn or error");
+    if (!utils.isNull(configuration.consoleLogger) && !(
+        validator.equals(configuration.consoleLogger, true)
+        || validator.equals(configuration.consoleLogger, false))
+        )
+        throw new Error("consoleLogger should be true or false");
+    if (!utils.isNull(configuration.fileLogger) && !(
+        validator.equals(configuration.fileLogger, true)
+        || validator.equals(configuration.fileLogger, false))
+        )
+        throw new Error("fileLogger should be true or false");
+    if (!utils.isNull(configuration.fileLoggerPath) && typeof (configuration.fileLoggerPath) !== typeof (defaultConfiguration.fileLoggerPath))
+        throw new Error("fileLoggerPath should be a string");
+}
+
 class Partitioner {
     constructor(configuration) {
         if (cluster.isWorker)
@@ -78,32 +104,6 @@ class Partitioner {
             })
         })
     }
-}
-
-function validate(configuration) {
-    if (configuration.numberOfWorkers !== undefined && !validator.isInt(configuration.numberOfWorkers, { min: 1 }))
-        throw new Error("numberOfWorkers should be an integer >= 1");
-    if (configuration.cleanIdlePartitionsAfterMinutes !== undefined && !validator.isInt(configuration.cleanIdlePartitionsAfterMinutes, { min: 1 }))
-        throw new Error("cleanIdlePartitionsAfterMinutes should be an integer >= 1");
-    if (configuration.loggerLevel !== undefined && !(
-        validator.equals(configuration.loggerLevel, 'debug')
-        || validator.equals(configuration.loggerLevel, 'info')
-        || validator.equals(configuration.loggerLevel, 'warn')
-        || validator.equals(configuration.loggerLevel, 'error'))
-        )
-        throw new Error("loggerLevel should be debug, info, warn or error");
-    if (configuration.consoleLogger !== undefined && !(
-        validator.equals(configuration.consoleLogger, true)
-        || validator.equals(configuration.consoleLogger, false))
-        )
-        throw new Error("consoleLogger should be true or false");
-    if (configuration.fileLogger !== undefined && !(
-        validator.equals(configuration.fileLogger, true)
-        || validator.equals(configuration.fileLogger, false))
-        )
-        throw new Error("fileLogger should be true or false");
-    if (configuration.fileLoggerPath !== undefined && typeof (configuration.fileLoggerPath) !== typeof (defaultConfiguration.fileLoggerPath))
-        throw new Error("fileLoggerPath should be a string");
 }
 
 module.exports = {
