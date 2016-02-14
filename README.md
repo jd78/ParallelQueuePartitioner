@@ -5,14 +5,15 @@ Round-Robin parallel task dispatcher that executes tasks in sequence if related.
 The relationship is defined through the "partitionId".
 The partitioner works on top of any queue/broker.
 
+Be aware that the version 2 works only with Node.js v4+
+
 ## Installation
     $ npm install parallel-queue-partitioner
     
+    For node 0.X (no longer supported)
+    $ npm install parallel-queue-partitioner@1.0.1
+    
 # Usage
-
-For the demo we will use Q. 
-
-    $ npm install q
 
 In a new js file, first reference the partitioner:
 
@@ -21,10 +22,9 @@ var parallelQueuePartitioner = require('parallel-queue-partitioner');
 var Partitioner = parallelQueuePartitioner.Partitioner;
 ```
 
-then reference q and cluster
+then reference cluster
 
 ```js
-var q = require('q');
 var cluster = require('cluster');
 ```
 
@@ -32,23 +32,23 @@ We need to register the jobs in each cluster. **Each job must contain a paramete
 
 ```js
 if(cluster.isWorker) {
-    registerJob('sum', function(job){
-        return q.Promise(function(resolve){
-            var sum = job.data.one + job.data.two;
-            console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
-            resolve();
-        });
-    });
+    parallelQueuePartitioner.registerJob('sum', job => {
+        return new Promise(resolve => {
+            var sum = job.data.one + job.data.two
+            logger.debug("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
+            resolve()
+        })
+    })
     
-    registerJob('delayedSum', function(job){
-        return q.Promise(function(resolve){
-            setTimeout(function(){
-                var sum = job.data.one + job.data.two;
-                console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
-                resolve();
-            }, 1000);
-    	});
-    });
+    parallelQueuePartitioner.registerJob('delayedSum', job => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                var sum = job.data.one + job.data.two
+                logger.debug("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
+                resolve()
+            }, 1000)
+    	})
+    })
 }
 ```
 
@@ -60,38 +60,38 @@ A job message must contain:
 - Optional data
 
 ```js
-if(cluster.isMaster)
-    Start();
-    
-function Start(){
+let start = () => {
     var partitioner = new Partitioner({
         numberOfWorkers: 8 //number of process workers
     });
-    
-    setTimeout(function(){
-		for(var i=1; i<50; i++) {
+
+    setTimeout(() => {
+        for (let i = 1; i < 50; i++) {
             partitioner.enqueueJob({
-                id: i, 
-                partitionId: i%8, //Spreading across the workers
+                id: i,
+                partitionId: i % 8, //Spreading across the workers
                 type: "sum", //job to run
-                data: { one: i, two: i+1 }
-            }, function(err){ //Optional callback, will be executed once the job is completed, useful to send acks to a broker.
-				console.log("sum job ended");
-			});
+                data: { one: i, two: i + 1 }
+            }, err => { //Optional callback, will be executed once the job is completed, useful to send acks to a broker.
+                console.log("sum job ended");
+            });
         }
-		
-		for(var i=1; i<50; i++) {
+
+        for (let i = 1; i < 50; i++) {
             partitioner.enqueueJob({
                 id: i,
                 partitionId: 10, //Only one process will execute these 50 messages in sequence
                 type: "delayedSum",
-                data: { one: i, two: i*i }
-            }, function(err){
-				console.log("sequential job ended");
-			});
+                data: { one: i, two: i * i }
+            }, err => {
+                console.log("sequential job ended");
+            });
         }
     }, 2000); //Arbitrary delayer to wait all forks are completed
 }
+
+if(cluster.isMaster)
+    start();
 ```
 
 ## Configuration
@@ -99,14 +99,14 @@ function Start(){
 The partitioner cab be configured as follow:
 
 - numberOfWorkers, is the number of processes we want to run (default 1)
-- cleanIdlePartitionsAfterMinutes, after the given minutes, a job will clean the partition that are not in use for that given time (default 15 minutes)
+- cleanIdlePartitionsAfterMinutes, after the given minutes, a job will clean the partition that were not used during that interval (default 15 minutes)
 - loggerLevel, 'debug', 'info', 'warn', or 'error' (default 'error')
 - consoleLogger, true or false, enable or disable the console logger (default: true)
 - fileLogger, true or false, enable or disable the file logger (default: true)
 - fileLoggerPath, the path where the logs will be saved (default: "./logger")
 
 ```js
-var partitioner = new Partitioner({
+const partitioner = new Partitioner({
     numberOfWorkers: 4,
     cleanIdlePartitionsAfterMinutes: 30,
     loggerLevel: 'info',
@@ -128,82 +128,52 @@ The filenames are:
 
 ```js
 
-var parallelQueuePartitioner = require('parallel-queue-partitioner');
-var Partitioner = parallelQueuePartitioner.Partitioner;
-var cluster = require("cluster");
-var q = require("q");
-var process = require('process');
+"use strict"
 
-var kue = require('kue');
-var queue = kue.createQueue({
+const Partitioner = require("../Partitioner").Partitioner
+const registerJob = require("../Partitioner").registerJob
+const cluster = require("cluster")
+const process = require('process')
+
+const kue = require('kue')
+const queue = kue.createQueue({
   prefix: 'queue',
   redis: {
     host: process.env.IP
   }
-});
+})
 
 if(cluster.isWorker) {
-    parallelQueuePartitioner.registerJob('test', function(job){
-        return q.Promise(function(resolve){
-            console.log("the job has been executed by %d", process.pid);
-            resolve();
-        });
-    });
+    registerJob('test', job => {
+        return new Promise(resolve => {
+            console.log("the job has been executed by %d", process.pid)
+            resolve()
+        })
+    })
     
-    parallelQueuePartitioner.registerJob('sequential', function(job) {
-        return q.Promise(function(resolve) {
-            console.log("delayed in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
-            setTimeout(function(){
-                console.log("delayed in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence);
-                resolve();    
-            }, 1000);
-        });
-    });
+    registerJob('sequential', job => {
+        return new Promise(resolve => {
+            console.log("delayed in-sequence job started. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence)
+            setTimeout(() => {
+                console.log("delayed in-sequence job completed. Id: %d, Partition: %d, pid: %d, sequence: %d", job.id, job.partitionId, process.pid, job.data.sequence)
+                resolve()    
+            }, 1000)
+        })
+    })
 }
 
-if(cluster.isMaster) {
-    console.log('pushing messages');
-    for (var i = 0; i < 50; i++) {
-        queue.create('jobs', {
-            partitionId: 0,
-            type: "sequential",
-            sequence: i
-        }).save(function(err) {
-            if (err) console.log(err);
-        });
-    }
-    
-    for (var i = 0; i < 50; i++) {
-        queue.create('jobs', {
-            partitionId: 1,
-            type: "sequential",
-            sequence: i
-        }).save(function(err) {
-            if (err) console.log(err);
-        });
-    }
-    
-    for (var i = 0; i < 150; i++) {
-        queue.create('jobs', {
-            partitionId: i % 5,
-            type: "test"
-        }).save(function(err) {
-            if (err) console.log(err);
-        });
-    }
-    
-    start();
-}
-    
-function start(){
+let start = () => {
     var partitioner = new Partitioner({
         numberOfWorkers: 4,
-        loggerLevel: 'info'
-    });
+        loggerLevel: 'debug',
+        consoleLogger: true,
+        fileLogger: true,
+        fileLoggerPath: "./bin/logger"
+    })
     
-    setTimeout(function(){
+    setTimeout(() => {
         
-        queue.process('jobs', 256, function(job, done) {
+        queue.process('jobs', 256, (job, done) => {
             
             if(job.data.type == "test"){
                 partitioner.enqueueJob({
@@ -211,14 +181,13 @@ function start(){
                     partitionId: job.data.partitionId,
                     type: job.data.type,
                     data: { }
-                }, function(err){
-                    if(err === undefined){
-                        console.log("test job %d done", job.id);
-                        done();
-                    }else{
-                        console.log(err);
+                }, err => {
+                    if(err) console.log(err)
+                    else {   
+                        console.log("test job %d done", job.id)
+                        done()
                     }
-                });
+                })
             }
             
             if(job.data.type == "sequential"){
@@ -231,14 +200,50 @@ function start(){
                     }
                 }, function(err){
                     if(err === undefined){
-                        console.log("sequential job %d done", job.id);
-                        done();
+                        console.log("sequential job %d done", job.id)
+                        done()
                     }else{
-                        console.log(err);
+                        console.log(err)
                     }
-                });
+                })
             }
-        });
-    }, 2000);
+        })
+    }, 2000)
+}
+
+let id = 0
+
+if(cluster.isMaster) {
+    console.log('pushing messages')
+    for (let i = 0; i < 50; i++) {
+        queue.create('jobs', {
+            partitionId: 0,
+            type: "sequential",
+            sequence: i
+        }).save(err => {
+            if (err) console.log(err)
+        })
+    }
+    
+    for (let i = 0; i < 50; i++) {
+        queue.create('jobs', {
+            partitionId: 1,
+            type: "sequential",
+            sequence: i
+        }).save(err => {
+            if (err) console.log(err)
+        })
+    }
+    
+    for (let i = 0; i < 150; i++) {
+        queue.create('jobs', {
+            partitionId: i % 5,
+            type: "test"
+        }).save(err => {
+            if (err) console.log(err)
+        })
+    }
+    
+    start()
 }
 ```
