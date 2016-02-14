@@ -1,47 +1,37 @@
-var _ = require("underscore");
-var q = require("q");
-var Logger = require("../Application/Logger");
+"use strict"
 
+const Logger = require("../Application/Logger")
 
-var jobs = [];
+let _jobs = new Map()
 
-function Job(id, callback) {
-    this.id = id;
+class JobService {    
+    constructor(){ }
     
-    this.done = function() {
-        if(callback !== undefined)
-            callback();
-        jobs.splice(_.findIndex(jobs, this), 1);
-    };
+    push(id, callback) {
+        return new Promise((resolve, reject) => {
+            try {
+                _jobs.set(id, callback)
+                resolve()
+            } catch(ex) {
+                Logger.instance().error(ex)
+                reject(ex)
+            }    
+        })
+    }
     
-    this.error = function(err){
-        if(callback !== undefined)
-            callback(err, this.id);
-        jobs.splice(_.findIndex(jobs, this), 1);
-    };
+    done(id) {
+        let job = _jobs.get(id)
+        if(job)
+            job()
+        _jobs.delete(id)
+    }
+    
+    error(id, err) {
+        let job = _jobs.get(id)
+        if(job)
+            job(err, id)
+        _jobs.delete(id)
+    }
 }
-
-function JobService(){ }
-
-JobService.prototype.push = function(id, callback) {
-    return q.Promise(function(resolve, reject){
-        try{
-            jobs.push(new Job(id, callback));
-            resolve();
-        }catch(ex){
-            Logger.instance().error(ex);
-            reject(ex);
-        }
-    });
-};
-
-JobService.prototype.done = function(id) {
-   _.findWhere(jobs, {id: id}).done();  
-};
-
-JobService.prototype.error = function(id, err) {
-   _.findWhere(jobs, {id: id}).error(err);  
-};
-
 
 module.exports = new JobService();

@@ -1,41 +1,39 @@
-var Partitioner = require("../Partitioner").Partitioner;
-var cluster = require("cluster");
-var registerJob = require("../Partitioner").registerJob;
-var q = require("q");
+"use strict"
+
+const Partitioner = require("../Partitioner").Partitioner
+const cluster = require("cluster")
+const registerJob = require("../Partitioner").registerJob
 
 if(cluster.isWorker) {
-    registerJob('test', function(job){
-        return q.Promise(function(resolve){
-            console.log("the job has been executed by " + process.pid);
-            resolve();
-        });
-    });
-    registerJob('sum', function(job){
-        return q.Promise(function(resolve){
-            var sum = job.data.one + job.data.two;
-            console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum);
-            resolve();
-        });
-    });
-    registerJob('slow', function(job){
-        return q.Promise(function(resolve) {
-            console.log("slow job started. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
+    registerJob('test', job => {
+        return new Promise(resolve => {
+            console.log("the job has been executed by " + process.pid)
+            resolve()
+        })
+    })
+    registerJob('sum', job => {
+        return new Promise(resolve => {
+            var sum = job.data.one + job.data.two
+            console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
+            resolve()
+        })
+    })
+    registerJob('slow', job => {
+        return new Promise(resolve => {
+            console.log("slow job started. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid)
             for(var i=0; i<999999999; i++){
             
             }
-            console.log("slow job completed. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid);
-            resolve();
-        });
-    });
+            console.log("slow job completed. Id: %d, Partition: %d, pid: %d", job.id, job.partitionId, process.pid)
+            resolve()
+        })
+    })
 }
 
-if(cluster.isMaster)
-    Start();
-    
-function Start(){
+let start = () => {
     var partitioner = new Partitioner({
         numberOfWorkers: 4
-    });
+    })
     
     setTimeout(function(){
         for(var i=1; i<20; i++) {
@@ -44,20 +42,20 @@ function Start(){
                 partitioner.enqueueJob({
                     id: i,
                     partitionId: i%3,
-                    type: "testt",
+                    type: "testt", //undefined job exception!!
                     data: { }
                 }, function(err){
                     if(err !== undefined)
-                        console.log(err);
+                        console.log(err)
                         
-                });
+                })
             }else{
                 partitioner.enqueueJob({
                     id: i,
                     partitionId: i%3,
                     type: "slow",
                     data: { }
-                });
+                })
             }
         }
         
@@ -71,9 +69,12 @@ function Start(){
                     two: i+1
                 }
             }, function(){
-                console.log("CALLBACK CALLED");
-            });
+                console.log("CALLBACK CALLED")
+            })
         }
         
-    }, 2000);
+    }, 2000)
 }
+
+if(cluster.isMaster)
+    start()
