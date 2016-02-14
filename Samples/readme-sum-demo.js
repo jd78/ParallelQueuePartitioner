@@ -3,14 +3,12 @@
 const parallelQueuePartitioner = require("parallel-queue-partitioner")
 const Partitioner = parallelQueuePartitioner.Partitioner
 const cluster = require("cluster")
-const logger = require("./Application/Logger")
-logger.transports.file.level = 'debug'
 
 if (cluster.isWorker) {
     parallelQueuePartitioner.registerJob('sum', job => {
         return new Promise(resolve => {
             var sum = job.data.one + job.data.two
-            logger.debug("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
+            console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
             resolve()
         })
     })
@@ -19,7 +17,7 @@ if (cluster.isWorker) {
         return new Promise(resolve => {
             setTimeout(() => {
                 var sum = job.data.one + job.data.two
-                logger.debug("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
+                console.log("partition: %d, pid: %d, sum: %d", job.partitionId, process.pid, sum)
                 resolve()
             }, 1000)
         })
