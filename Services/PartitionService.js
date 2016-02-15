@@ -19,10 +19,10 @@ class Partition {
         this.isAliveCheck = setInterval(() => {
             var logger = Logger.instance()
             logger.info(util.format("Partition cleanup fired for %d", partitionId))
-            if (self.updatedAt <= moment().utc().subtract(_cleanIdlePartitionsAfterMinutes, 'minutes').format())
+            if (this.updatedAt <= moment().utc().subtract(_cleanIdlePartitionsAfterMinutes, 'minutes').format())
                 lock.execWrite(() => {
                     return new Promise(resolve => {
-                        _partitions.delete(self.partitionId)
+                        _partitions.delete(this.partitionId)
                         resolve()
                         
                         logger.info(util.format("Partition %d cleaned", partitionId))
