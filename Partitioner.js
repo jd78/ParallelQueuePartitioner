@@ -109,6 +109,6 @@ class Partitioner {
 module.exports = {
     Partitioner: Partitioner,
     registerJob: function (title, func) {
-        jobs[title] = func;
+        jobs.registerJob(title, func)
     }
 };
